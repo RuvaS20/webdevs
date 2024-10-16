@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Knowledge Quiz - ClimateWatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-green: #2F5233;
+            --secondary-brown: #8B4513;
+            --background-cream: #FFFFF0;
+        }
+
+        body {
+            background-color: var(--background-cream);
+        }
+
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary-green);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: var(--primary-green);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            color: var(--primary-green);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .quiz-image {
+            width: 100%;
+            height: 160px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quiz-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the container without distortion */
+        }
+
+        .quiz-content {
+            padding: 1.5rem;
+        }
+
+        .quiz-content h3 {
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .start-quiz-btn {
+            background: var(--primary-green);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .active-quiz {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question {
+            margin-bottom: 2rem;
+        }
+
+        .question h2 {
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+        }
+
+        .options {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .option {
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: var(--primary-green);
+            background: #f9f9f9;
+        }
+
+        .quiz-progress {
+            margin-bottom: 2rem;
+            background: #eee;
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            width: 30%;
+            height: 100%;
+            background: var(--primary-green);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">🌍 Msasa Academy</a>
+            <div class="nav-links">
+                <a href="updates.html">Updates</a>
+                <a href="forum.html">Forum</a>
+                <a href="quiz.html">Quizzes</a>
+                <a href="profile.html">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1>Test Your Climate Knowledge</h1>
+            <p>Challenge yourself with our interactive quizzes</p>
+        </div>
+
+        <div class="quiz-grid">
+            <div class="quiz-card">
+                <div class="quiz-image">
+                    <img src="webDevsImage3.jpeg" alt="Climate Basics Quiz">
+                </div>
+                <div class="quiz-content">
+                    <h3>Climate Science Fundamentals</h3>
+                    <div class="quiz-meta">
+                        <span>10 questions</span>
+                        <span>15 minutes</span>
+                    </div>
+                    <p>Test your understanding of basic climate science concepts</p>
+                    <button class="start-quiz-btn">Start Quiz</button>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-image">
+                    <img src="webDevsImage4.jpeg" alt="Advanced Climate Systems">
+                </div>
+                <div class="quiz-content">
+                    <h3>Advanced Climate Systems</h3>
+                    <div class="quiz-meta">
+                        <span>15 questions</span>
+                        <span>25 minutes</span>
+                    </div>
+                    <p>Dive deep into complex climate systems and interactions</p>
+                    <button class="start-quiz-btn">Start Quiz</button>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-image">
+                    <img src="webDevsImage2.jpeg" alt="Climate Solutions Quiz">
+                </div>
+                <div class="quiz-content">
+                    <h3>Climate Solutions</h3>
+                    <div class="quiz-meta">
+                        <span>12 questions</span>
+                        <span>20 minutes</span>
+                    </div>
+                    <p>Explore various approaches to addressing climate change</p>
+                    <button class="start-quiz-btn">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="active-quiz">
+            <div class="quiz-progress">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="question">
+                <h2>Question 3 of 10: Greenhouse Effect</h2>
+                <p>Which of the following gases contributes most to the greenhouse effect in Earth's atmosphere?</p>
+            </div>
+
+            <div class="options">
+                <div class="option">A) Carbon Dioxide (CO₂)</div>
+                <div class="option">B) Water Vapor (H₂O)</div>
+                <div class="option">C) Methane (CH₄)</div>
+                <div class="option">D) Nitrous Oxide (N₂O)</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
