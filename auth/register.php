@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../includes/config.php';
+require_once '../db/config.php';
 
 if(!isset($_GET['role']) || ($_GET['role'] !== 'teacher' && $_GET['role'] !== 'student')) {
     header('Location: choose_role.php');
