@@ -272,7 +272,7 @@ $questions = $stmt->fetchAll();
 
             const formData = new FormData(this);
 
-            fetch('process-quiz.php', {
+            fetch('../../functions/process_quiz.php', {
                     method: 'POST',
                     body: formData
                 })
