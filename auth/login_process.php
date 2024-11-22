@@ -48,10 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Redirect based on role
             if ($user['role'] === 'teacher') {
-                header("Location: ../teacher/dashboard.php");
+                header("Location: ../view/teacher/dashboard.php");
                 exit();
             } else {
-                header("Location: ../student/dashboard.php");
+                header("Location: ../view/student/dashboard.php");
                 exit();
             }
 
