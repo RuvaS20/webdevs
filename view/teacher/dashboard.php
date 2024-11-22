@@ -213,6 +213,102 @@ try {
             opacity: 0.9;
         }
 
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .question-block {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .answer-options {
+            margin-top: 10px;
+        }
+
+        .option-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .remove-question {
+            color: #f44336;
+            cursor: pointer;
+            float: right;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success-message, .error-message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message.fade-out, .error-message.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -226,6 +322,24 @@ try {
 </head>
 <body>
     <div class="dashboard">
+        <?php if(isset($_SESSION['success'])): ?>
+            <div class="success-message">
+                <?php 
+                    echo $_SESSION['success']; 
+                    unset($_SESSION['success']);
+                ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if(isset($_SESSION['error'])): ?>
+            <div class="error-message">
+                <?php 
+                    echo $_SESSION['error']; 
+                    unset($_SESSION['error']);
+                ?>
+            </div>
+        <?php endif; ?>
+        
         <div class="header">
             <h1>Teacher Dashboard</h1>
             <a href="create-quiz.php" class="create-quiz-btn">Create New Quiz</a>
@@ -281,7 +395,7 @@ try {
                                     </div>
                                     <div class="quiz-actions">
                                         <a href="view-results.php?id=<?php echo $quiz['quiz_id']; ?>" class="btn btn-view">View Results</a>
-                                        <a href="edit-quiz.php?id=<?php echo $quiz['quiz_id']; ?>" class="btn btn-edit">Edit Quiz</a>
+                                        <a href="#" onclick="openEditQuizModal(<?php echo $quiz['quiz_id']; ?>)" class="btn btn-edit">Edit Quiz</a>
                                         <button onclick="deleteQuiz(<?php echo $quiz['quiz_id']; ?>)" class="btn btn-delete">Delete</button>
                                     </div>
                                 </li>
@@ -311,14 +425,50 @@ try {
                 </div>
             </div>
         </div>
+
+        <!-- Edit Quiz Modal -->
+        <div id="editQuizModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Quiz</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="editQuizForm">
+                        <input type="hidden" id="editQuizId" name="quiz_id">
+                        
+                        <div class="form-group">
+                            <label for="editQuizTitle">Quiz Title</label>
+                            <input type="text" id="editQuizTitle" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editQuizDescription">Description</label>
+                            <textarea id="editQuizDescription" name="description"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editQuizDifficulty">Difficulty Level</label>
+                            <select id="editQuizDifficulty" name="difficulty_level">
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+
+                        <div id="questionsContainer">
+                            <!-- Questions will be loaded here dynamically -->
+                        </div>
+
+                        <button type="button" id="addQuestionBtn" class="btn btn-secondary">Add New Question</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-    function deleteQuiz(quizId) {
-        if(confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
-            window.location.href = 'delete-quiz.php?id=' + quizId;
-        }
-    }
-    </script>
+    <script src="../../assets/js/quiz_delete.js"></script>
+    <script src="../../assets/js/quiz_editor.js"></script>
 </body>
 </html>
