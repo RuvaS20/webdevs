@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../db/database.php';
-require_once __DIR__ . '/validation.php';
+require_once __DIR__ . '../db/database.php';
+require_once __DIR__ . '../utils/validation.php';
 
 class AuthFunctions {
     private $db;
