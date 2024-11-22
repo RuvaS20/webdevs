@@ -1,29 +1,50 @@
 <?php
 session_start();
-require_once '../../db/config.php';
+require_once '../includes/config.php';
+
+// Check if user is logged in and is a student
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+    header('Location: ../auth/login.php');
+    exit();
+}
 
 // Get quiz details
 $quiz_id = $_GET['id'] ?? 0;
+
+
+
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE quiz_id = ?");
 $stmt->execute([$quiz_id]);
 $quiz = $stmt->fetch();
+
+if (!$quiz) {
+    $_SESSION['error'] = "Quiz not found.";
+    header('Location: dashboard.php');
+    exit();
+}
 
 // Get questions
 $stmt = $pdo->prepare("SELECT * FROM quiz_questions WHERE quiz_id = ? ORDER BY order_number");
 $stmt->execute([$quiz_id]);
 $questions = $stmt->fetchAll();
+
+if (empty($questions)) {
+    $_SESSION['error'] = "This quiz has no questions.";
+    header('Location: dashboard.php');
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($quiz['title']); ?></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Keep all your existing styles -->
     <style>
-        * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -171,77 +192,116 @@ $questions = $stmt->fetchAll();
             .quiz-content {
                 padding: 20px;
             }
-        }
-    </style>
+        }    </style>
 </head>
-
 <body>
     <div class="quiz-container">
         <div class="quiz-header">
             <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
+            <?php if($quiz['image_url']): ?>
+                <img src="../<?php echo htmlspecialchars($quiz['image_url']); ?>" alt="Quiz Cover Image">
+            <?php endif; ?>
             <p><?php echo htmlspecialchars($quiz['description']); ?></p>
         </div>
 
-        <form id="quiz-form" class="quiz-content">
+        <!-- Changed to post directly to submit-quiz.php -->
+        <form method="POST" action="submit-quiz.php" class="quiz-content" id="quiz-form">
             <input type="hidden" name="quiz_id" value="<?php echo $quiz_id; ?>">
+            
+            <?php foreach($questions as $index => $question): ?>
+                <div class="question-block">
+                    <p class="question-text">
+                        <strong>Question <?php echo $index + 1; ?>:</strong> 
+                        <?php echo htmlspecialchars($question['question_text']); ?>
+                    </p>
 
-            <?php foreach ($questions as $index => $question): ?>
-            <div class="question-block">
-                <p class="question-text">
-                    <strong>Question <?php echo $index + 1; ?>:</strong>
-                    <?php echo htmlspecialchars($question['question_text']); ?>
-                </p>
+                    <?php if($question['image_url']): ?>
+                        <img src="../<?php echo htmlspecialchars($question['image_url']); ?>" 
+                             alt="Question Image" class="question-image">
+                    <?php endif; ?>
 
-                <?php
-                switch ($question['question_type']) {
-                    case 'multiple_choice':
-                        $options = json_decode($question['options'], true);
-                        foreach ($options as $key => $option): ?>
+                    <?php
+                    switch($question['question_type']) {
+                        case 'multiple_choice':
+                            $options = json_decode($question['options'], true);
+                            if ($options) {
+                                foreach($options as $key => $option):
+                    ?>
                             <label class="option-label">
-                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="<?php echo $key; ?>">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="<?php echo $key; ?>" required>
                                 <?php echo htmlspecialchars($option); ?>
                             </label>
-                        <?php endforeach;
-                        break;
+                    <?php 
+                                endforeach;
+                            }
+                            break;
 
-                    case 'true_false': ?>
-                        <label class="option-label">
-                            <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="true"> True
-                        </label>
-                        <label class="option-label">
-                            <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="false"> False
-                        </label>
-                    <?php break;
+                        case 'true_false':
+                    ?>
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="true" required> True
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="false" required> False
+                            </label>
+                    <?php
+                            break;
 
-                    case 'short_answer': ?>
-                        <input type="text" name="answers[<?php echo $question['question_id']; ?>]" placeholder="Enter your answer" required>
-                    <?php break;
-                }
-                ?>
-            </div>
+                        case 'short_answer':
+                    ?>
+                            <input type="text" name="answers[<?php echo $question['question_id']; ?>]" 
+                                   placeholder="Enter your answer" required>
+                    <?php
+                            break;
+                    }
+                    ?>
+                </div>
             <?php endforeach; ?>
 
-            <button type="submit" class="submit-btn">Submit Quiz</button>
+            <div class="quiz-footer">
+                <p><small>Make sure to answer all questions before submitting.</small></p>
+                <button type="submit" class="submit-btn">Submit Quiz</button>
+                <a href="dashboard.php" style="display: block; text-align: center; margin-top: 10px; color: #666;">
+                    Cancel and return to dashboard
+                </a>
+            </div>
         </form>
     </div>
 
     <script>
-        document.getElementById('quiz-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-
-            fetch('../../functions/process_quiz.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(`Score: ${data.score}%`);
-                location.reload();
+    // Add form validation before submission
+    document.getElementById('quiz-form').addEventListener('submit', function(e) {
+        let allAnswered = true;
+        const questions = this.querySelectorAll('.question-block');
+        
+        questions.forEach(question => {
+            const inputs = question.querySelectorAll('input[type="radio"], input[type="text"]');
+            let questionAnswered = false;
+            
+            inputs.forEach(input => {
+                if(input.type === 'radio' && input.checked) questionAnswered = true;
+                if(input.type === 'text' && input.value.trim() !== '') questionAnswered = true;
             });
+            
+            if(!questionAnswered) {
+                allAnswered = false;
+                question.style.border = '2px solid #dc3545';
+            } else {
+                question.style.border = 'none';
+            }
         });
+        
+        if(!allAnswered) {
+            e.preventDefault();
+            alert('Please answer all questions before submitting.');
+            window.scrollTo(0, 0);
+        } else if(!confirm('Are you sure you want to submit your quiz? You cannot change your answers after submission.')) {
+            e.preventDefault();
+        }
+    });
     </script>
 </body>
-
 </html>
