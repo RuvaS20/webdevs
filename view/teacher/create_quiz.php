@@ -4,7 +4,7 @@ require_once '../../db/database.php';
 
 // Check if the user is logged in as a teacher
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
-    header('Location: ../auth/login.php');
+    header('Location: ../../auth/login.php');
     exit();
 }
 
