@@ -17,12 +17,12 @@ $questions = $stmt->fetchAll();
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?php echo htmlspecialchars($quiz['title']); ?></title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($quiz['title']); ?></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -47,14 +47,6 @@ $questions = $stmt->fetchAll();
             margin-bottom: 30px;
         }
 
-        .quiz-header img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
         .quiz-content {
             background: white;
             border-radius: 15px;
@@ -74,13 +66,6 @@ $questions = $stmt->fetchAll();
             font-size: 1.2em;
             margin-bottom: 15px;
             color: #2c3e50;
-        }
-
-        .question-image {
-            max-width: 100%;
-            height: auto;
-            margin: 10px 0;
-            border-radius: 8px;
         }
 
         input[type="radio"],
@@ -187,123 +172,76 @@ $questions = $stmt->fetchAll();
                 padding: 20px;
             }
         }
-        </style>
-    </head>
+    </style>
+</head>
 
-    <body>
-        <div class="quiz-container">
-            <div class="quiz-header">
-                <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
-                <?php if($quiz['image_url']): ?>
-                <img src="<?php echo htmlspecialchars($quiz['image_url']); ?>" alt="Quiz Cover Image">
-                <?php endif; ?>
-                <p><?php echo htmlspecialchars($quiz['description']); ?></p>
-            </div>
-
-            <form id="quiz-form" class="quiz-content">
-                <input type="hidden" name="quiz_id" value="<?php echo $quiz_id; ?>">
-
-                <?php foreach($questions as $index => $question): ?>
-                <div class="question-block">
-                    <p class="question-text">
-                        <strong>Question <?php echo $index + 1; ?>:</strong>
-                        <?php echo htmlspecialchars($question['question_text']); ?>
-                    </p>
-
-                    <?php if($question['image_url']): ?>
-                    <img src="<?php echo htmlspecialchars($question['image_url']); ?>" alt="Question Image"
-                        class="question-image">
-                    <?php endif; ?>
-
-                    <?php
-                    switch($question['question_type']) {
-                        case 'multiple_choice':
-                            $options = json_decode($question['options'], true);
-                            foreach($options as $key => $option):
-                    ?>
-                    <label class="option-label">
-                        <input type="radio" name="answers[<?php echo $question['question_id']; ?>]"
-                            value="<?php echo $key; ?>">
-                        <?php echo htmlspecialchars($option); ?>
-                    </label>
-                    <?php 
-                            endforeach;
-                            break;
-
-                        case 'true_false':
-                    ?>
-                    <label class="option-label">
-                        <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="true"> True
-                    </label>
-                    <label class="option-label">
-                        <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="false"> False
-                    </label>
-                    <?php
-                            break;
-
-                        case 'short_answer':
-                    ?>
-                    <input type="text" name="answers[<?php echo $question['question_id']; ?>]"
-                        placeholder="Enter your answer" required>
-                    <?php
-                            break;
-                    }
-                    ?>
-                </div>
-                <?php endforeach; ?>
-
-                <button type="submit" class="submit-btn">Submit Quiz</button>
-            </form>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
+            <p><?php echo htmlspecialchars($quiz['description']); ?></p>
         </div>
 
-        <div id="result-modal" class="result-modal">
-            <div class="result-content">
-                <div class="result-header">
-                    <h2>Quiz Results</h2>
-                    <div class="score" id="final-score"></div>
-                </div>
-                <div id="question-review"></div>
-            </div>
-        </div>
+        <form id="quiz-form" class="quiz-content">
+            <input type="hidden" name="quiz_id" value="<?php echo $quiz_id; ?>">
 
-        <script>
+            <?php foreach ($questions as $index => $question): ?>
+            <div class="question-block">
+                <p class="question-text">
+                    <strong>Question <?php echo $index + 1; ?>:</strong>
+                    <?php echo htmlspecialchars($question['question_text']); ?>
+                </p>
+
+                <?php
+                switch ($question['question_type']) {
+                    case 'multiple_choice':
+                        $options = json_decode($question['options'], true);
+                        foreach ($options as $key => $option): ?>
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="<?php echo $key; ?>">
+                                <?php echo htmlspecialchars($option); ?>
+                            </label>
+                        <?php endforeach;
+                        break;
+
+                    case 'true_false': ?>
+                        <label class="option-label">
+                            <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="true"> True
+                        </label>
+                        <label class="option-label">
+                            <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="false"> False
+                        </label>
+                    <?php break;
+
+                    case 'short_answer': ?>
+                        <input type="text" name="answers[<?php echo $question['question_id']; ?>]" placeholder="Enter your answer" required>
+                    <?php break;
+                }
+                ?>
+            </div>
+            <?php endforeach; ?>
+
+            <button type="submit" class="submit-btn">Submit Quiz</button>
+        </form>
+    </div>
+
+    <script>
         document.getElementById('quiz-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
 
             fetch('../../functions/process_quiz.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('final-score').textContent =
-                        `Score: ${data.score}%`;
-
-                    let reviewHtml = '';
-                    data.questions.forEach(q => {
-                        reviewHtml += `
-                    <div class="question-review ${q.correct ? 'correct' : 'incorrect'}">
-                        <p><strong>${q.question}</strong></p>
-                        <p>Your answer: ${q.userAnswer}</p>
-                        <p>Correct answer: ${q.correctAnswer}</p>
-                    </div>
-                `;
-                    });
-
-                    document.getElementById('question-review').innerHTML = reviewHtml;
-                    document.getElementById('result-modal').style.display = 'block';
-                });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Score: ${data.score}%`);
+                location.reload();
+            });
         });
-
-        // Close modal when clicking outside
-        document.getElementById('result-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
-        });
-        </script>
-    </body>
+    </script>
+</body>
 
 </html>
