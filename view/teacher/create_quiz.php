@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
     exit();
 }
 
-$teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
+$teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +16,6 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Quiz</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -99,11 +98,6 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
             margin-bottom: 15px;
         }
 
-        .image-preview {
-            max-width: 200px;
-            margin: 10px 0;
-        }
-
         .btn {
             padding: 12px 24px;
             border: none;
@@ -144,31 +138,6 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
             margin-bottom: 10px;
         }
 
-        .correct-answer {
-            background: #d4edda;
-            border-color: #c3e6cb;
-        }
-
-        .image-upload {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            padding: 15px;
-            border: 2px dashed #cbd5e0;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .image-upload:hover {
-            border-color: #3498db;
-        }
-
-        .image-upload i {
-            font-size: 24px;
-            color: #3498db;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -187,7 +156,7 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
             <p>Design your quiz questions and set up the parameters below</p>
         </div>
 
-        <form class="quiz-form" action="save-quiz.php" method="POST" enctype="multipart/form-data">
+        <form class="quiz-form" action="save-quiz.php" method="POST">
             <!-- Hidden input to send teacher_id to save-quiz.php -->
             <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
 
@@ -199,19 +168,6 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea id="description" name="description" rows="3" placeholder="Describe your quiz"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="quiz-image">Quiz Cover Image</label>
-                <div class="image-upload" onclick="document.getElementById('quiz-image').click()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <div>
-                        <p>Drop your image here or click to upload</p>
-                        <p style="font-size: 12px; color: #666;">Supports: JPG, PNG (Max 2MB)</p>
-                    </div>
-                </div>
-                <input type="file" id="quiz-image" name="quiz_image" style="display: none" accept="image/*">
-                <div id="image-preview" class="image-preview"></div>
             </div>
 
             <div class="form-group">
@@ -227,9 +183,7 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
                 <div class="question-block">
                     <div class="question-header">
                         <h3>Question 1</h3>
-                        <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">Remove</button>
                     </div>
 
                     <div class="form-group">
@@ -246,41 +200,23 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
                         </select>
                     </div>
 
-                    <div class="options-container" id="options-0">
-                        <!-- Options will be dynamically added here -->
-                    </div>
+                    <div class="options-container" id="options-0"></div>
 
                     <div class="form-group">
                         <label>Points</label>
                         <input type="number" name="questions[0][points]" value="1" min="1" required>
                     </div>
-
-                    <div class="form-group">
-                        <label>Question Image (Optional)</label>
-                        <div class="image-upload" onclick="document.getElementById('question-0-image').click()">
-                            <i class="fas fa-image"></i>
-                            <p>Add an image to this question</p>
-                        </div>
-                        <input type="file" id="question-0-image" name="questions[0][image]" 
-                               style="display: none" accept="image/*" onchange="previewImage(this)">
-                        <div class="image-preview" id="preview-0"></div>
-                    </div>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary" onclick="addQuestion()" style="margin-right: 10px;">
-                <i class="fas fa-plus"></i> Add Question
-            </button>
-            <button type="submit" class="btn btn-success">
-                <i class="fas fa-check"></i> Create Quiz
-            </button>
+            <button type="button" class="btn btn-primary" onclick="addQuestion()">Add Question</button>
+            <button type="submit" class="btn btn-success">Create Quiz</button>
         </form>
     </div>
 
     <script>
         let questionCount = 1;
 
-        // Function to add new question block
         function addQuestion() {
             const questionContainer = document.getElementById('questions-container');
             const newQuestionBlock = document.createElement('div');
@@ -288,16 +224,12 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
             newQuestionBlock.innerHTML = `
                 <div class="question-header">
                     <h3>Question ${questionCount + 1}</h3>
-                    <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">Remove</button>
                 </div>
-
                 <div class="form-group">
                     <label>Question Text</label>
                     <input type="text" name="questions[${questionCount}][text]" required placeholder="Enter your question">
                 </div>
-
                 <div class="form-group">
                     <label>Question Type</label>
                     <select name="questions[${questionCount}][type]" onchange="updateQuestionType(this)">
@@ -306,56 +238,24 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
                         <option value="short_answer">Short Answer</option>
                     </select>
                 </div>
-
-                <div class="options-container" id="options-${questionCount}">
-                    <!-- Options will be dynamically added here -->
-                </div>
-
+                <div class="options-container" id="options-${questionCount}"></div>
                 <div class="form-group">
                     <label>Points</label>
                     <input type="number" name="questions[${questionCount}][points]" value="1" min="1" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Question Image (Optional)</label>
-                    <div class="image-upload" onclick="document.getElementById('question-${questionCount}-image').click()">
-                        <i class="fas fa-image"></i>
-                        <p>Add an image to this question</p>
-                    </div>
-                    <input type="file" id="question-${questionCount}-image" name="questions[${questionCount}][image]" 
-                           style="display: none" accept="image/*" onchange="previewImage(this)">
-                    <div class="image-preview" id="preview-${questionCount}"></div>
                 </div>
             `;
             questionContainer.appendChild(newQuestionBlock);
             questionCount++;
         }
 
-        // Function to remove question
         function removeQuestion(button) {
             button.closest('.question-block').remove();
             questionCount--;
         }
 
-        // Function to handle image preview
-        function previewImage(input) {
-            const previewId = input.id.replace('image', 'preview');
-            const preview = document.getElementById(previewId);
-
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Image Preview" style="max-width: 100%; height: auto;">`;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Function to handle question type change (e.g. multiple-choice)
         function updateQuestionType(select) {
             const questionIndex = select.name.match(/\d+/)[0];
             const optionsContainer = document.getElementById(`options-${questionIndex}`);
-
             if (select.value === 'multiple_choice') {
                 optionsContainer.innerHTML = `
                     <div class="option-row">
@@ -363,12 +263,6 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
                     </div>
                     <div class="option-row">
                         <input type="radio" name="questions[${questionIndex}][correct]" value="B"> B. <input type="text" name="questions[${questionIndex}][options][B]" required>
-                    </div>
-                    <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="C"> C. <input type="text" name="questions[${questionIndex}][options][C]" required>
-                    </div>
-                    <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="D"> D. <input type="text" name="questions[${questionIndex}][options][D]" required>
                     </div>
                 `;
             } else if (select.value === 'true_false') {
@@ -381,33 +275,14 @@ $teacher_id = $_SESSION['user_id'];  // Get the teacher's ID from the session
                     </div>
                 `;
             } else if (select.value === 'short_answer') {
-        optionsContainer.innerHTML = `
-            <div class="form-group">
-                <label>Correct Answer</label>
-                <input type="text" name="questions[${questionIndex}][correct_answer]" required placeholder="Enter the correct answer">
-            </div>
-        `;
-    }
+                optionsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <input type="text" name="questions[${questionIndex}][correct_answer]" required placeholder="Enter the correct answer">
+                    </div>
+                `;
+            }
         }
-// Initialize first question's type
-window.addEventListener('DOMContentLoaded', function() {
-    const firstQuestionType = document.querySelector('select[name="questions[0][type]"]');
-    if (firstQuestionType) {
-        updateQuestionType(firstQuestionType);
-    }
-});
-
-// Handle quiz image preview
-document.getElementById('quiz-image').addEventListener('change', function(e) {
-    const preview = document.getElementById('image-preview');
-    if (e.target.files && e.target.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            preview.innerHTML = `<img src="${event.target.result}" alt="Quiz Cover Preview" style="max-width: 200px;">`;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    }
-});
     </script>
 </body>
 </html>
