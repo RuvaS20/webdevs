@@ -57,7 +57,7 @@ function isLoggedIn() {
 
 function checkUserType($allowedTypes) {
     if (!isset($_SESSION['user_type']) || !in_array($_SESSION['user_type'], $allowedTypes)) {
-        header('Location: /auth/login.php');
+        header('Location: login.php');
         exit();
     }
 }
