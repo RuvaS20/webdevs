@@ -93,15 +93,18 @@ $replies = getTopicReplies($topicId, $page);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topic: <?php echo htmlspecialchars($topic['title']); ?> - Msasa Academy</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Topic: <?php echo htmlspecialchars($topic['title']); ?> - Msasa Academy</title>
+
+        <!-- Google Fonts -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap"
+            rel="stylesheet">
+
+        <style>
         /* Reset and Base Styles */
         * {
             margin: 0;
@@ -351,6 +354,15 @@ $replies = getTopicReplies($topicId, $page);
             color: #FECE63;
         }
 
+        .logout-btn {
+            color: #FECE63;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid #FECE63;
+            transition: all 0.3s;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .main-container {
@@ -385,107 +397,109 @@ $replies = getTopicReplies($topicId, $page);
                 justify-content: flex-start;
             }
         }
-    </style>
-</head>
-<body>
+        </style>
+    </head>
 
-    <nav class="nav-container">
-        <div class="nav-links">
-            <a href="index.php" class="active">Forum</a>
-            <a href="../student/dashboard.php">Profile</a>
-            <a href="../../auth/logout.php">Logout</a>
-        </div>
-    </nav>
+    <body>
 
-    <main class="main-container">
-        <div class="topic-header">
-            <h1><?php echo htmlspecialchars($topic['title']); ?></h1>
-            <div class="topic-meta">
-                Posted by <?php echo htmlspecialchars($topic['username']); ?>
-                <?php if ($topic['role'] === 'teacher'): ?>
+        <nav class="nav-container">
+            <div class="nav-links">
+                <a href="index.php" class="active">Forum</a>
+                <a href="../student/dashboard.php">Profile</a>
+                <a href="../../auth/logout.php" class="logout-btn">Logout</a>
+            </div>
+        </nav>
+
+        <main class="main-container">
+            <div class="topic-header">
+                <h1><?php echo htmlspecialchars($topic['title']); ?></h1>
+                <div class="topic-meta">
+                    Posted by <?php echo htmlspecialchars($topic['username']); ?>
+                    <?php if ($topic['role'] === 'teacher'): ?>
                     <span class="badge teacher">Teacher</span>
-                <?php endif; ?>
-                • <?php echo date('F j, Y', strtotime($topic['created_date'])); ?>
+                    <?php endif; ?>
+                    • <?php echo date('F j, Y', strtotime($topic['created_date'])); ?>
+                </div>
             </div>
-        </div>
 
-        <div class="topic-content">
-            <div class="post-container">
-                <div class="post-author">
-                    <div class="author-info">
-                        <strong><?php echo htmlspecialchars($topic['username']); ?></strong>
-                        <span class="post-count">Posts: <?php echo getUserPostCount($topic['user_id']); ?></span>
+            <div class="topic-content">
+                <div class="post-container">
+                    <div class="post-author">
+                        <div class="author-info">
+                            <strong><?php echo htmlspecialchars($topic['username']); ?></strong>
+                            <span class="post-count">Posts: <?php echo getUserPostCount($topic['user_id']); ?></span>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <?php echo nl2br(htmlspecialchars($topic['content'])); ?>
                     </div>
                 </div>
-                <div class="post-body">
-                    <?php echo nl2br(htmlspecialchars($topic['content'])); ?>
-                </div>
-            </div>
 
-            <?php foreach ($replies as $reply): ?>
-            <div class="post-container reply">
-                <div class="post-author">
-                    <div class="author-info">
-                        <strong><?php echo htmlspecialchars($reply['username']); ?></strong>
-                        <?php if ($reply['role'] === 'teacher'): ?>
+                <?php foreach ($replies as $reply): ?>
+                <div class="post-container reply">
+                    <div class="post-author">
+                        <div class="author-info">
+                            <strong><?php echo htmlspecialchars($reply['username']); ?></strong>
+                            <?php if ($reply['role'] === 'teacher'): ?>
                             <span class="badge teacher">Teacher</span>
-                        <?php endif; ?>
-                        <span class="post-count">Posts: <?php echo getUserPostCount($reply['user_id']); ?></span>
+                            <?php endif; ?>
+                            <span class="post-count">Posts: <?php echo getUserPostCount($reply['user_id']); ?></span>
+                        </div>
                     </div>
-                </div>
-                <div class="post-body">
-                    <?php echo nl2br(htmlspecialchars($reply['content'])); ?>
-                    <div class="post-meta">
-                        Posted <?php echo date('F j, Y g:i A', strtotime($reply['created_date'])); ?>
-                        <?php if (isset($_SESSION['user_id']) && 
+                    <div class="post-body">
+                        <?php echo nl2br(htmlspecialchars($reply['content'])); ?>
+                        <div class="post-meta">
+                            Posted <?php echo date('F j, Y g:i A', strtotime($reply['created_date'])); ?>
+                            <?php if (isset($_SESSION['user_id']) && 
                             ($_SESSION['user_id'] == $reply['user_id'] || 
                             $_SESSION['role'] === 'teacher')): ?>
                             <div class="post-actions">
-                                <a href="edit_reply.php?id=<?php echo $reply['reply_id']; ?>" class="button small">Edit</a>
+                                <a href="edit_reply.php?id=<?php echo $reply['reply_id']; ?>"
+                                    class="button small">Edit</a>
                                 <form action="../../actions/forum/delete_reply.php" method="POST" class="inline">
                                     <input type="hidden" name="reply_id" value="<?php echo $reply['reply_id']; ?>">
-                                    <button type="submit" class="button small danger" 
-                                            onclick="return confirm('Are you sure you want to delete this reply?')">
+                                    <button type="submit" class="button small danger"
+                                        onclick="return confirm('Are you sure you want to delete this reply?')">
                                         Delete
                                     </button>
                                 </form>
                             </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
 
-            <?php if (isset($_SESSION['user_id'])): ?>
-            <div class="reply-form">
-                <h3>Post a Reply</h3>
-                <form action="../../actions/forum/post_reply.php" method="POST">
-                    <input type="hidden" name="topic_id" value="<?php echo $topicId; ?>">
-                    <textarea name="content" rows="5" required placeholder="Write your reply..."></textarea>
-                    <button type="submit" class="button primary">Post Reply</button>
-                </form>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="reply-form">
+                    <h3>Post a Reply</h3>
+                    <form action="../../actions/forum/post_reply.php" method="POST">
+                        <input type="hidden" name="topic_id" value="<?php echo $topicId; ?>">
+                        <textarea name="content" rows="5" required placeholder="Write your reply..."></textarea>
+                        <button type="submit" class="button primary">Post Reply</button>
+                    </form>
+                </div>
+                <?php else: ?>
+                <div class="login-prompt">
+                    <p>Please <a href="../auth/login.php">login</a> to post a reply.</p>
+                </div>
+                <?php endif; ?>
             </div>
-            <?php else: ?>
-            <div class="login-prompt">
-                <p>Please <a href="../auth/login.php">login</a> to post a reply.</p>
+
+            <?php if ($topic['reply_count'] > 10): ?>
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                <a href="?id=<?php echo $topicId; ?>&page=<?php echo $page - 1; ?>" class="button">Previous</a>
+                <?php endif; ?>
+
+                <a href="?id=<?php echo $topicId; ?>&page=<?php echo $page + 1; ?>" class="button">Next</a>
             </div>
             <?php endif; ?>
-        </div>
+        </main>
 
-        <?php if ($topic['reply_count'] > 10): ?>
-        <div class="pagination">
-            <?php if ($page > 1): ?>
-            <a href="?id=<?php echo $topicId; ?>&page=<?php echo $page - 1; ?>" class="button">Previous</a>
-            <?php endif; ?>
-            
-            <a href="?id=<?php echo $topicId; ?>&page=<?php echo $page + 1; ?>" class="button">Next</a>
-        </div>
-        <?php endif; ?>
-    </main>
-
-    <?php require_once '../components/footer.php'; ?>
+        <?php require_once '../components/footer.php'; ?>
 
         <?php require_once '../components/footer.php'; ?>
     </body>
-</html>
 
+</html>

@@ -45,13 +45,16 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Student Dashboard</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap"
+            rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
         * {
             margin: 0;
             padding: 0;
@@ -76,7 +79,7 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -99,9 +102,21 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
             transition: all 0.3s;
         }
 
+        .forum-btn {
+            color: #FECE63;
+            text-decoration: underline;
+            padding: 12px 24px;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .forum-btn:hover {
+            transform: translateY(-2px);
+        }
+
         .logout-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .welcome-section {
@@ -130,7 +145,7 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
@@ -158,7 +173,7 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
@@ -193,7 +208,7 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
 
         .start-quiz-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .attempt-card {
@@ -241,7 +256,9 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
         }
 
         @media (max-width: 768px) {
-            .stats-grid, .dashboard-grid {
+
+            .stats-grid,
+            .dashboard-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -249,91 +266,76 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
                 font-size: 2em;
             }
         }
-    </style>
-</head>
-<body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>Student Dashboard</h1>
-            <a href="../../auth/logout.php" class="logout-btn">Logout</a>
-        </div>
+        </style>
+    </head>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <?php 
-                echo $_SESSION['success'];
-                unset($_SESSION['success']); 
-                ?>
+    <body>
+        <div class="dashboard">
+            <div class="header">
+                <h1>Student Dashboard</h1>
+                <a href="../../view/forum/index.php" class="forum-btn">Forum</a>
+                <a href="../../auth/logout.php" class="logout-btn">Logout</a>
             </div>
-        <?php endif; ?>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
-                <?php 
-                echo $_SESSION['error'];
-                unset($_SESSION['error']); 
-                ?>
+            <div class="welcome-section">
+                <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
+                <p>Ready to learn? Check out the available quizzes below.</p>
             </div>
-        <?php endif; ?>
 
-        <div class="welcome-section">
-            <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
-            <p>Ready to learn? Check out the available quizzes below.</p>
-        </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3><?php echo $completed_attempts; ?></h3>
+                    <p>Quizzes Completed</p>
+                </div>
+                <div class="stat-card">
+                    <h3><?php echo number_format($average_score, 1); ?>%</h3>
+                    <p>Average Score</p>
+                </div>
+                <div class="stat-card">
+                    <h3><?php echo number_format($highest_score, 1); ?>%</h3>
+                    <p>Highest Score</p>
+                </div>
+            </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3><?php echo $completed_attempts; ?></h3>
-                <p>Quizzes Completed</p>
-            </div>
-            <div class="stat-card">
-                <h3><?php echo number_format($average_score, 1); ?>%</h3>
-                <p>Average Score</p>
-            </div>
-            <div class="stat-card">
-                <h3><?php echo number_format($highest_score, 1); ?>%</h3>
-                <p>Highest Score</p>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            <div>
-                <h2>Available Quizzes</h2>
-                <?php if(empty($quizzes)): ?>
+            <div class="dashboard-grid">
+                <div>
+                    <h2>Available Quizzes</h2>
+                    <?php if(empty($quizzes)): ?>
                     <p>No quizzes available at the moment.</p>
-                <?php else: ?>
+                    <?php else: ?>
                     <?php foreach($quizzes as $quiz): ?>
-                        <div class="quiz-card">
-                            <?php if(!empty($quiz['image_url'])): ?>
-                                <img src="../<?php echo htmlspecialchars($quiz['image_url']); ?>" 
-                                     alt="Quiz Cover" style="max-width: 200px; margin-bottom: 10px;">
-                            <?php endif; ?>
-                            <h3><?php echo htmlspecialchars($quiz['title']); ?></h3>
-                            <p><?php echo htmlspecialchars($quiz['description']); ?></p>
-                            <p><strong>Difficulty:</strong> <?php echo htmlspecialchars($quiz['difficulty_level']); ?></p>
-                            <p><strong>Created by:</strong> <?php echo htmlspecialchars($quiz['teacher_name']); ?></p>
-                            <a href="take_quiz.php?id=<?php echo $quiz['quiz_id']; ?>" class="start-quiz-btn">Start Quiz</a>
-                        </div>
+                    <div class="quiz-card">
+                        <?php if(!empty($quiz['image_url'])): ?>
+                        <img src="../<?php echo htmlspecialchars($quiz['image_url']); ?>" alt="Quiz Cover"
+                            style="max-width: 200px; margin-bottom: 10px;">
+                        <?php endif; ?>
+                        <h3><?php echo htmlspecialchars($quiz['title']); ?></h3>
+                        <p><?php echo htmlspecialchars($quiz['description']); ?></p>
+                        <p><strong>Difficulty:</strong> <?php echo htmlspecialchars($quiz['difficulty_level']); ?></p>
+                        <p><strong>Created by:</strong> <?php echo htmlspecialchars($quiz['teacher_name']); ?></p>
+                        <a href="take_quiz.php?id=<?php echo $quiz['quiz_id']; ?>" class="start-quiz-btn">Start Quiz</a>
+                    </div>
                     <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                    <?php endif; ?>
+                </div>
 
-            <div>
-                <h2>My Recent Attempts</h2>
-                <?php if(empty($attempts)): ?>
+                <div>
+                    <h2>My Recent Attempts</h2>
+                    <?php if(empty($attempts)): ?>
                     <p>You haven't taken any quizzes yet.</p>
-                <?php else: ?>
+                    <?php else: ?>
                     <?php foreach($attempts as $attempt): ?>
-                        <div class="attempt-card">
-                            <h3><?php echo htmlspecialchars($attempt['quiz_title']); ?></h3>
-                            <div class="score"><?php echo number_format($attempt['total_score'], 1); ?>%</div>
-                            <p>Date: <?php echo date('M d, Y H:i', strtotime($attempt['start_time'])); ?></p>
-                            <p>Status: <?php echo $attempt['completion_status'] == 1 ? 'Completed' : 'In Progress'; ?></p>
-                        </div>
+                    <div class="attempt-card">
+                        <h3><?php echo htmlspecialchars($attempt['quiz_title']); ?></h3>
+                        <div class="score"><?php echo number_format($attempt['total_score'], 1); ?>%</div>
+                        <p>Date: <?php echo date('M d, Y H:i', strtotime($attempt['start_time'])); ?></p>
+                        <p>Status: <?php echo $attempt['completion_status'] == 1 ? 'Completed' : 'In Progress'; ?></p>
+                    </div>
                     <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
-</body>
+    </body>
+
 </html>

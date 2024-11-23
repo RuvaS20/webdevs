@@ -120,13 +120,16 @@ function timeAgo($timestamp) {
 ?>
 <!DOCTYPE html>
 <html>
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Community Forum - Msasa Academy</title>
-        
+
         <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap" rel="stylesheet">
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap"
+            rel="stylesheet">
         <link href="../../assets/css/forum.css" rel="stylesheet">
     </head>
 
@@ -134,7 +137,7 @@ function timeAgo($timestamp) {
     <body>
         <nav class="nav-container">
             <div class="nav-links">
-                <a href="../../news.html">News</a>
+                <a href="../news.php">News</a>
                 <a href="index.php" class="active">Forum</a>
                 <a href="../student/available_quizzes.php">Quizzes</a>
                 <a href="../student/dashboard.php">Profile</a>
@@ -172,41 +175,44 @@ function timeAgo($timestamp) {
                     <p>No topics found in this category. Be the first to start a discussion!</p>
                 </div>
                 <?php else: ?>
-                    <?php foreach ($topics as $topic): ?>
-                    <div class="topic-item">
-                        <div class="topic-info">
-                            <h3><a href="topic.php?id=<?php echo $topic['topic_id']; ?>">
+                <?php foreach ($topics as $topic): ?>
+                <div class="topic-item">
+                    <div class="topic-info">
+                        <h3><a href="topic.php?id=<?php echo $topic['topic_id']; ?>">
                                 <?php echo htmlspecialchars($topic['title']); ?>
                             </a></h3>
-                            <div class="topic-meta">
-                                Posted by <?php echo htmlspecialchars($topic['username']); ?> • 
-                                <?php echo timeAgo($topic['created_date']); ?>
-                            </div>
-                        </div>
-                        <div class="topic-stats">
-                            <div>
-                                <?php echo $topic['reply_count']; ?> replies
-                            </div>
-                            <div>
-                                <?php echo $topic['view_count']; ?> views
-                            </div>
+                        <div class="topic-meta">
+                            Posted by <?php echo htmlspecialchars($topic['username']); ?> •
+                            <?php echo timeAgo($topic['created_date']); ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
+                    <div class="topic-stats">
+                        <div>
+                            <?php echo $topic['reply_count']; ?> replies
+                        </div>
+                        <div>
+                            <?php echo $topic['view_count']; ?> views
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
                 <?php endif; ?>
             </div>
 
             <?php if (count($topics) >= $perPage): ?>
             <div class="pagination">
                 <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?><?php echo $currentCategory ? '&category=' . urlencode($currentCategory) : ''; ?>" class="button">Previous</a>
+                <a href="?page=<?php echo $page - 1; ?><?php echo $currentCategory ? '&category=' . urlencode($currentCategory) : ''; ?>"
+                    class="button">Previous</a>
                 <?php endif; ?>
-                
-                <a href="?page=<?php echo $page + 1; ?><?php echo $currentCategory ? '&category=' . urlencode($currentCategory) : ''; ?>" class="button">Next</a>
+
+                <a href="?page=<?php echo $page + 1; ?><?php echo $currentCategory ? '&category=' . urlencode($currentCategory) : ''; ?>"
+                    class="button">Next</a>
             </div>
             <?php endif; ?>
         </main>
 
         <?php require_once '../components/footer.php'; ?>
     </body>
+
 </html>
