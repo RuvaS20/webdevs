@@ -1,17 +1,15 @@
 <?php
 session_start();
-require_once '../includes/config.php';
+require_once '../../db/config.php';
 
 // Check if user is logged in and is a student
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
-    header('Location: ../auth/login.php');
+    header('Location: ../../auth/login.php');
     exit();
 }
 
 // Get quiz details
 $quiz_id = $_GET['id'] ?? 0;
-
-
 
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE quiz_id = ?");
 $stmt->execute([$quiz_id]);
@@ -41,19 +39,19 @@ if (empty($questions)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($quiz['title']); ?></title>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Keep all your existing styles -->
     <style>
-* {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Arimo", sans-serif;
         }
 
         body {
-            background: #f5f7fb;
-            color: #2c3e50;
+            background-color: #052B2B;
+            color: #EBE5D5;
             line-height: 1.6;
         }
 
@@ -64,124 +62,114 @@ if (empty($questions)) {
         }
 
         .quiz-header {
-            text-align: center;
+            background: #041f1f;
+            padding: 20px;
+            border-radius: 10px;
             margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
+            text-align: center;
+        }
+
+        .quiz-header h1 {
+            font-family: "DM Serif Display", serif;
+            color: #FECE63;
+            margin-bottom: 15px;
         }
 
         .quiz-content {
-            background: white;
-            border-radius: 15px;
+            background: #041f1f;
+            border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
         .question-block {
             margin-bottom: 30px;
             padding: 20px;
-            background: #f8f9fa;
+            background: #052B2B;
             border-radius: 10px;
-            border-left: 5px solid #3498db;
+            border-left: 5px solid #FECE63;
         }
 
         .question-text {
             font-size: 1.2em;
             margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        input[type="radio"],
-        input[type="text"] {
-            margin: 8px 0;
+            color: #EBE5D5;
+            font-family: "DM Serif Display", serif;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #e9ecef;
+            padding: 12px;
+            background: #041f1f;
+            border: 1px solid rgba(235, 229, 213, 0.2);
             border-radius: 8px;
+            color: #EBE5D5;
             font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            border-color: #FECE63;
+            outline: none;
         }
 
         .option-label {
             display: block;
-            padding: 10px 15px;
-            margin: 5px 0;
-            background: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #041f1f;
+            border: 1px solid rgba(235, 229, 213, 0.2);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: #EBE5D5;
         }
 
         .option-label:hover {
-            background: #e9ecef;
+            border-color: #FECE63;
+            transform: translateY(-2px);
         }
 
         .submit-btn {
             display: block;
             width: 100%;
             padding: 15px;
-            background: #2ecc71;
-            color: white;
-            border: none;
+            background: #041f1f;
+            color: #EBE5D5;
+            border: 1px solid #FECE63;
             border-radius: 8px;
             font-size: 1.1em;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin-top: 20px;
         }
 
         .submit-btn:hover {
-            background: #27ae60;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .result-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .result-content {
-            position: relative;
-            background: white;
-            width: 90%;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .result-header {
+        .quiz-footer {
+            margin-top: 20px;
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        .score {
-            font-size: 2em;
-            color: #2ecc71;
-            margin: 20px 0;
+        .quiz-footer p {
+            color: #EBE5D5;
+            opacity: 0.8;
+            margin-bottom: 10px;
         }
 
-        .question-review {
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
+        .quiz-footer a {
+            color: #FECE63;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
         }
 
-        .correct {
-            background: #d4edda;
-            border-left: 5px solid #28a745;
-        }
-
-        .incorrect {
-            background: #f8d7da;
-            border-left: 5px solid #dc3545;
+        .quiz-footer a:hover {
+            opacity: 0.8;
         }
 
         @media (max-width: 768px) {
@@ -192,19 +180,16 @@ if (empty($questions)) {
             .quiz-content {
                 padding: 20px;
             }
-        }    </style>
+        }
+    </style>
 </head>
 <body>
     <div class="quiz-container">
         <div class="quiz-header">
             <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
-            <?php if($quiz['image_url']): ?>
-                <img src="../<?php echo htmlspecialchars($quiz['image_url']); ?>" alt="Quiz Cover Image">
-            <?php endif; ?>
             <p><?php echo htmlspecialchars($quiz['description']); ?></p>
         </div>
 
-        <!-- Changed to post directly to submit-quiz.php -->
         <form method="POST" action="submit-quiz.php" class="quiz-content" id="quiz-form">
             <input type="hidden" name="quiz_id" value="<?php echo $quiz_id; ?>">
             
@@ -214,11 +199,6 @@ if (empty($questions)) {
                         <strong>Question <?php echo $index + 1; ?>:</strong> 
                         <?php echo htmlspecialchars($question['question_text']); ?>
                     </p>
-
-                    <?php if($question['image_url']): ?>
-                        <img src="../<?php echo htmlspecialchars($question['image_url']); ?>" 
-                             alt="Question Image" class="question-image">
-                    <?php endif; ?>
 
                     <?php
                     switch($question['question_type']) {
@@ -264,15 +244,12 @@ if (empty($questions)) {
             <div class="quiz-footer">
                 <p><small>Make sure to answer all questions before submitting.</small></p>
                 <button type="submit" class="submit-btn">Submit Quiz</button>
-                <a href="dashboard.php" style="display: block; text-align: center; margin-top: 10px; color: #666;">
-                    Cancel and return to dashboard
-                </a>
+                <a href="dashboard.php">Cancel and return to dashboard</a>
             </div>
         </form>
     </div>
 
     <script>
-    // Add form validation before submission
     document.getElementById('quiz-form').addEventListener('submit', function(e) {
         let allAnswered = true;
         const questions = this.querySelectorAll('.question-block');
@@ -288,9 +265,9 @@ if (empty($questions)) {
             
             if(!questionAnswered) {
                 allAnswered = false;
-                question.style.border = '2px solid #dc3545';
+                question.style.borderColor = '#dc3545';
             } else {
-                question.style.border = 'none';
+                question.style.borderColor = '#FECE63';
             }
         });
         
