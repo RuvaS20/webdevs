@@ -1,6 +1,9 @@
 <?php
 session_start();
 require_once '../../db/database.php';
+error_log("Session messages - Success: " . 
+    (isset($_SESSION['success']) ? $_SESSION['success'] : 'none') . 
+    ", Error: " . (isset($_SESSION['error']) ? $_SESSION['error'] : 'none'));
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
     header('Location: ../../auth/login.php');
@@ -20,13 +23,13 @@ try {
             AVG(qa.total_score) as average_score
         FROM quizzes q
         LEFT JOIN quiz_attempts qa ON q.quiz_id = qa.quiz_id
-        WHERE q.teacher_id = :teacher_id
+        WHERE q.teacher_id = :teacher_id AND q.is_active = 1
         GROUP BY q.quiz_id
         ORDER BY q.created_date DESC
     ");
 
     $stmt->execute([':teacher_id' => $_SESSION['user_id']]);
-    $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);  // Added PDO::FETCH_ASSOC here
+    $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Get recent quiz attempts
     $stmt = $pdo->prepare("SELECT 
@@ -42,11 +45,12 @@ try {
         ORDER BY qa.start_time DESC
         LIMIT 5");
     $stmt->execute([':teacher_id' => $_SESSION['user_id']]);
-    $recent_attempts = $stmt->fetchAll(PDO::FETCH_ASSOC);  // Added PDO::FETCH_ASSOC here
+    $recent_attempts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch(PDOException $e) {
-    echo "Database Error: " . $e->getMessage();
-    die();
+    $_SESSION['error'] = "Database Error: " . $e->getMessage();
+    $quizzes = [];
+    $recent_attempts = [];
 }
 ?>
 
@@ -56,51 +60,92 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
         }
 
         body {
-            background-color: #f4f6f8;
+            font-family: "Arimo", sans-serif;
+            color: #EBE5D5;
+            background-color: #052B2B;
+            line-height: 1.6;
         }
 
+        /* Dashboard Container */
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* Header Section */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 0.5px solid rgba(235, 229, 213, 0.4);
         }
 
         .header h1 {
-            color: #333;
+            font-family: "DM Serif Display", serif;
+            color: #EBE5D5;
+            font-size: 2.5em;
         }
 
         .create-quiz-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
+            background-color: #FECE63;
+            color: #3A4E3C;
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
         .create-quiz-btn:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(254, 206, 99, 0.3);
         }
 
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #041f1f;
+            color: #EBE5D5;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(235, 229, 213, 0.2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #FECE63;
+        }
+
+        .stat-card h3 {
+            font-family: "DM Serif Display", serif;
+            color: #FECE63;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* Main Content */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -108,40 +153,49 @@ try {
         }
 
         .card {
-            background: white;
+            background: #041f1f;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             margin-bottom: 20px;
+            border: 1px solid rgba(235, 229, 213, 0.2);
         }
 
         .card h2 {
-            color: #333;
+            font-family: "DM Serif Display", serif;
+            color: #FECE63;
             margin-bottom: 20px;
             font-size: 1.5em;
         }
 
-        .quiz-list {
-            list-style: none;
-        }
-
+        /* Quiz Items */
         .quiz-item {
-            border: 1px solid #eee;
-            border-radius: 5px;
+            border: 1px solid rgba(235, 229, 213, 0.2);
+            border-radius: 10px;
             padding: 15px;
             margin-bottom: 10px;
+            transition: all 0.2s ease;
+            background: #052B2B;
+        }
+
+        .quiz-item:hover {
+            transform: translateY(-2px);
+            border-color: #FECE63;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .quiz-item h3 {
-            color: #444;
+            color: #FECE63;
             margin-bottom: 5px;
+            font-family: "DM Serif Display", serif;
         }
 
+        /* Quiz Stats and Actions */
         .quiz-stats {
             display: flex;
             gap: 20px;
             margin: 10px 0;
-            color: #666;
+            color: #EBE5D5;
             font-size: 0.9em;
         }
 
@@ -151,164 +205,255 @@ try {
             margin-top: 10px;
         }
 
+        /* Buttons */
         .btn {
-            padding: 5px 15px;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: 3px;
+            border-radius: 10px;
             cursor: pointer;
             text-decoration: none;
             font-size: 0.9em;
+            transition: all 0.3s ease;
         }
 
         .btn-view {
-            background-color: #2196F3;
-            color: white;
+            background-color: #EBE5D5;
+            color: #3A4E3C;
         }
 
         .btn-edit {
-            background-color: #FFC107;
-            color: #000;
+            background-color: #FECE63;
+            color: #3A4E3C;
         }
 
         .btn-delete {
             background-color: #f44336;
-            color: white;
+            color: #EBE5D5;
         }
 
-        .attempt-list {
-            list-style: none;
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* Recent Attempts */
         .attempt-item {
             padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(235, 229, 213, 0.2);
         }
 
         .attempt-item:last-child {
             border-bottom: none;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
+        /* Modal Styles */
         .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: none;
-            z-index: 1000;
-        }
+    display: none; /* Start hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(5, 43, 43, 0.9);
+}
 
-        .modal-content {
-            position: relative;
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 800px;
-            border-radius: 8px;
-            max-height: 90vh;
-            overflow-y: auto;
+.modal-content {
+    position: relative;
+    background-color: #041f1f;
+    color: #EBE5D5;
+    border: 1px solid rgba(235, 229, 213, 0.2);
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 10px;
+}
+
+        .modal-header {
+            border-bottom: 1px solid rgba(235, 229, 213, 0.2);
         }
 
         .close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 28px;
-            cursor: pointer;
+            color: #EBE5D5;
         }
 
-        .question-block {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
+        .close:hover {
+            color: #FECE63;
         }
 
-        .answer-options {
-            margin-top: 10px;
-        }
-
-        .option-block {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 5px 0;
-        }
-
-        .remove-question {
-            color: #f44336;
-            cursor: pointer;
-            float: right;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
+        /* Form Styles */
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
+            color: #EBE5D5;
         }
 
         .form-group input,
         .form-group textarea,
         .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background-color: #052B2B;
+            border: 1px solid rgba(235, 229, 213, 0.2);
+            color: #EBE5D5;
         }
-        .success-message, .error-message {
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #FECE63;
+            outline: none;
+        }
+
+        /* Messages */
+        .success-message {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #EBE5D5;
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 5px;
             text-align: center;
         }
 
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
         .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #EBE5D5;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
         }
 
-        .success-message.fade-out, .error-message.fade-out {
+        .success-message.fade-out,
+        .error-message.fade-out {
             opacity: 0;
             transition: opacity 0.5s ease;
         }
+/* Add/update these styles in your dashboard.php */
 
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(5, 43, 43, 0.9);
+    overflow-y: auto;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #041f1f;
+    color: #EBE5D5;
+    border: 1px solid rgba(235, 229, 213, 0.2);
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 10px;
+}
+
+/* Question Block Styles */
+.question-block {
+    background: #052B2B;
+    border: 1px solid rgba(235, 229, 213, 0.2);
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.question-header h3 {
+    color: #FECE63;
+    margin: 0;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(235, 229, 213, 0.05);
+    border-radius: 5px;
+}
+
+.option-row input[type="text"] {
+    flex: 1;
+    background: #041f1f;
+    border: 1px solid rgba(235, 229, 213, 0.2);
+    color: #EBE5D5;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.option-row input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Form Styles Update */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #EBE5D5;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    background: #041f1f;
+    border: 1px solid rgba(235, 229, 213, 0.2);
+    color: #EBE5D5;
+    border-radius: 5px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #FECE63;
+    outline: none;
+}
+
+/* Button styles for the modal */
+.btn-danger {
+    background-color: #f44336;
+    color: #EBE5D5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+#addQuestionBtn {
+    background-color: #052B2B;
+    color: #FECE63;
+    border: 1px solid #FECE63;
+}
+
+button[type="submit"] {
+    background-color: #FECE63;
+    color: #3A4E3C;
+}
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -316,6 +461,15 @@ try {
             
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .quiz-stats {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .quiz-actions {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -342,7 +496,7 @@ try {
         
         <div class="header">
             <h1>Teacher Dashboard</h1>
-            <a href="create-quiz.php" class="create-quiz-btn">Create New Quiz</a>
+            <a href="create_quiz.php" class="create-quiz-btn">Create New Quiz</a>
         </div>
 
         <div class="stats-grid">
@@ -385,7 +539,7 @@ try {
                     <?php else: ?>
                         <ul class="quiz-list">
                             <?php foreach($quizzes as $quiz): ?>
-                                <li class="quiz-item">
+                                <li class="quiz-item" data-quiz-id="<?php echo $quiz['quiz_id']; ?>">
                                     <h3><?php echo htmlspecialchars($quiz['title']); ?></h3>
                                     <p><?php echo htmlspecialchars($quiz['description']); ?></p>
                                     <div class="quiz-stats">
@@ -394,9 +548,9 @@ try {
                                         <span>Average Score: <?php echo $quiz['average_score'] ? round($quiz['average_score'], 1) : 0; ?>%</span>
                                     </div>
                                     <div class="quiz-actions">
-                                        <a href="view-results.php?id=<?php echo $quiz['quiz_id']; ?>" class="btn btn-view">View Results</a>
+                                        <a href="view_results.php?id=<?php echo $quiz['quiz_id']; ?>" class="btn btn-view">View Results</a>
                                         <a href="#" onclick="openEditQuizModal(<?php echo $quiz['quiz_id']; ?>)" class="btn btn-edit">Edit Quiz</a>
-                                        <button onclick="deleteQuiz(<?php echo $quiz['quiz_id']; ?>)" class="btn btn-delete">Delete</button>
+                                        <button onclick="deleteQuiz(<?php echo $quiz['quiz_id']; ?>, event)" class="btn btn-delete">Delete</button>
                                     </div>
                                 </li>
                             <?php endforeach; ?>
@@ -416,7 +570,7 @@ try {
                                 <li class="attempt-item">
                                     <p><strong><?php echo htmlspecialchars($attempt['student_name']); ?></strong></p>
                                     <p>Quiz: <?php echo htmlspecialchars($attempt['quiz_title']); ?></p>
-                                    <p>Score: <?php echo $attempt['total_score']; ?></p>
+                                    <p>Score: <?php echo round($attempt['total_score'], 1); ?>%</p>
                                     <p>Date: <?php echo date('M d, Y', strtotime($attempt['start_time'])); ?></p>
                                 </li>
                             <?php endforeach; ?>
@@ -427,46 +581,64 @@ try {
         </div>
 
         <!-- Edit Quiz Modal -->
-        <div id="editQuizModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Edit Quiz</h2>
-                    <span class="close">&times;</span>
+        <!-- Edit Quiz Modal -->
+<div id="editQuizModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Quiz</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editQuizForm">
+                <input type="hidden" id="editQuizId" name="quiz_id">
+                
+                <div class="form-group">
+                    <label for="editQuizTitle">Quiz Title</label>
+                    <input type="text" id="editQuizTitle" name="title" required>
                 </div>
-                <div class="modal-body">
-                    <form id="editQuizForm">
-                        <input type="hidden" id="editQuizId" name="quiz_id">
-                        
-                        <div class="form-group">
-                            <label for="editQuizTitle">Quiz Title</label>
-                            <input type="text" id="editQuizTitle" name="title" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editQuizDescription">Description</label>
-                            <textarea id="editQuizDescription" name="description"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="editQuizDifficulty">Difficulty Level</label>
-                            <select id="editQuizDifficulty" name="difficulty_level">
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate">Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                            </select>
-                        </div>
-
-                        <div id="questionsContainer">
-                            <!-- Questions will be loaded here dynamically -->
-                        </div>
-
-                        <button type="button" id="addQuestionBtn" class="btn btn-secondary">Add New Question</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </form>
+                
+                <div class="form-group">
+                    <label for="editQuizDescription">Description</label>
+                    <textarea id="editQuizDescription" name="description" rows="3"></textarea>
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="editQuizDifficulty">Difficulty Level</label>
+                    <select id="editQuizDifficulty" name="difficulty_level">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+
+                <div id="questionsContainer">
+                    <!-- Questions will be loaded here dynamically -->
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="addQuestionBtn" class="btn">Add New Question</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+    </div>
+
+    <script>
+        // Auto-hide success and error messages after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.success-message, .error-message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.classList.add('fade-out');
+                    setTimeout(() => {
+                        message.style.display = 'none';
+                    }, 500);
+                }, 3000);
+            });
+        });
+    </script>
 
     <script src="../../assets/js/quiz_delete.js"></script>
     <script src="../../assets/js/quiz_editor.js"></script>
