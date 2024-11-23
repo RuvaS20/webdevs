@@ -202,23 +202,27 @@ if (empty($questions)) {
 
                     <?php
                     switch($question['question_type']) {
-                        case 'multiple_choice':
-                            $options = json_decode($question['options'], true);
-                            if ($options) {
-                                foreach($options as $key => $option):
-                    ?>
+                        case 'multiple_choice': ?>
                             <label class="option-label">
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
-                                       value="<?php echo $key; ?>" required>
-                                <?php echo htmlspecialchars($option); ?>
+                                       value="A" required> A
                             </label>
-                    <?php 
-                                endforeach;
-                            }
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="B" required> B
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="C" required> C
+                            </label>
+                            <label class="option-label">
+                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
+                                       value="D" required> D
+                            </label>
+                            <?php
                             break;
 
-                        case 'true_false':
-                    ?>
+                        case 'true_false': ?>
                             <label class="option-label">
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
                                        value="true" required> True
@@ -227,14 +231,13 @@ if (empty($questions)) {
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
                                        value="false" required> False
                             </label>
-                    <?php
+                            <?php
                             break;
 
-                        case 'short_answer':
-                    ?>
+                        case 'short_answer': ?>
                             <input type="text" name="answers[<?php echo $question['question_id']; ?>]" 
                                    placeholder="Enter your answer" required>
-                    <?php
+                            <?php
                             break;
                     }
                     ?>
@@ -244,7 +247,7 @@ if (empty($questions)) {
             <div class="quiz-footer">
                 <p><small>Make sure to answer all questions before submitting.</small></p>
                 <button type="submit" class="submit-btn">Submit Quiz</button>
-                <a href="dashboard.php">Cancel and return to dashboard</a>
+                <p><a href="dashboard.php">Cancel and return to dashboard</a></p>
             </div>
         </form>
     </div>
