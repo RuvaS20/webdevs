@@ -60,17 +60,18 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Results - <?php echo htmlspecialchars($quiz['title']); ?></title>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: "Arimo", sans-serif;
         }
 
         body {
-            background-color: #f4f6f8;
-            color: #333;
+            background-color: #052B2B;
+            color: #EBE5D5;
             line-height: 1.6;
         }
 
@@ -85,14 +86,16 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
         }
 
         .header h1 {
-            font-size: 24px;
-            color: #2c3e50;
+            font-family: "DM Serif Display", serif;
+            font-size: 2.5em;
+            color: #EBE5D5;
             margin-bottom: 10px;
         }
 
         .quiz-info {
-            color: #666;
+            color: #EBE5D5;
             margin-bottom: 20px;
+            opacity: 0.8;
         }
 
         .stats-grid {
@@ -103,29 +106,32 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
         }
 
         .stat-card {
-            background: white;
+            background: #041f1f;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
         .stat-card h3 {
             font-size: 24px;
-            color: #3c8f3c;
+            color: #FECE63;
             margin-bottom: 5px;
+            font-family: "DM Serif Display", serif;
         }
 
         .stat-card p {
-            color: #666;
+            color: #EBE5D5;
             font-size: 14px;
         }
 
         .results-table {
-            background: white;
+            background: #041f1f;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             overflow: hidden;
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
         table {
@@ -136,35 +142,38 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
         th, td {
             padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(235, 229, 213, 0.1);
         }
 
         th {
-            background-color: #f8f9fa;
+            background-color: #052B2B;
             font-weight: 600;
-            color: #2c3e50;
+            color: #FECE63;
         }
 
         tr:hover {
-            background-color: #f8f9fa;
+            background-color: #052B2B;
         }
 
         .btn {
             display: inline-block;
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            font-weight: 500;
         }
 
         .btn-view {
-            background-color: #3c8f3c;
-            color: white;
+            background: #052B2B;
+            color: #EBE5D5;
+            border: 1px solid #FECE63;
         }
 
         .btn-view:hover {
-            background-color: #2d682d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .score-cell {
@@ -172,11 +181,11 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
         }
 
         .high-score {
-            color: #2ecc71;
+            color: #FECE63;
         }
 
         .medium-score {
-            color: #f1c40f;
+            color: #EBE5D5;
         }
 
         .low-score {
@@ -184,30 +193,33 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
         }
 
         .date-cell {
-            color: #666;
+            color: #EBE5D5;
+            opacity: 0.8;
             font-size: 14px;
         }
 
         .empty-message {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: #EBE5D5;
             font-style: italic;
         }
 
         .back-button {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #34495e;
-            color: white;
+            padding: 12px 24px;
+            background-color: #041f1f;
+            color: #EBE5D5;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            transition: background-color 0.3s;
+            border: 1px solid #FECE63;
+            transition: all 0.3s;
         }
 
         .back-button:hover {
-            background-color: #2c3e50;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         @media (max-width: 768px) {
@@ -224,7 +236,7 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
             }
 
             .header h1 {
-                font-size: 20px;
+                font-size: 2em;
             }
         }
 
@@ -288,7 +300,7 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
                             <tr>
                                 <td>
                                     <div><?php echo htmlspecialchars($attempt['username']); ?></div>
-                                    <div style="font-size: 12px; color: #666;">
+                                    <div style="font-size: 12px; color: #EBE5D5; opacity: 0.8;">
                                         <?php echo htmlspecialchars($attempt['email']); ?>
                                     </div>
                                 </td>
