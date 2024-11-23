@@ -16,17 +16,18 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Arimo", sans-serif;
         }
 
         body {
-            background: #f5f7fb;
-            color: #2c3e50;
+            background-color: #052B2B;
+            color: #EBE5D5;
             line-height: 1.6;
         }
 
@@ -42,16 +43,18 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
         }
 
         .quiz-header h1 {
-            color: #2c3e50;
+            font-family: "DM Serif Display", serif;
+            color: #EBE5D5;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
 
         .quiz-form {
-            background: white;
+            background: #041f1f;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
         .form-group {
@@ -62,33 +65,37 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: #34495e;
+            color: #FECE63;
         }
 
         input[type="text"],
         textarea,
-        select {
+        select,
+        input[type="number"] {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e9ecef;
+            background-color: #052B2B;
+            border: 2px solid rgba(235, 229, 213, 0.2);
             border-radius: 8px;
             font-size: 16px;
+            color: #EBE5D5;
             transition: border-color 0.3s;
         }
 
         input[type="text"]:focus,
         textarea:focus,
-        select:focus {
-            border-color: #3498db;
+        select:focus,
+        input[type="number"]:focus {
+            border-color: #FECE63;
             outline: none;
         }
 
         .question-block {
-            background: #f8f9fa;
+            background: #052B2B;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid #e9ecef;
+            border: 1px solid rgba(235, 229, 213, 0.2);
         }
 
         .question-header {
@@ -96,6 +103,11 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+        }
+
+        .question-header h3 {
+            color: #FECE63;
+            font-family: "DM Serif Display", serif;
         }
 
         .btn {
@@ -108,23 +120,24 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
         }
 
         .btn-primary {
-            background: #3498db;
-            color: white;
+            background: #052B2B;
+            color: #EBE5D5;
+            border: 1px solid #FECE63;
         }
 
         .btn-success {
-            background: #2ecc71;
-            color: white;
+            background: #FECE63;
+            color: #052B2B;
         }
 
         .btn-danger {
             background: #e74c3c;
-            color: white;
+            color: #EBE5D5;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .options-container {
@@ -136,6 +149,26 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            color: #EBE5D5;
+        }
+
+        .option-row input[type="radio"] {
+            accent-color: #FECE63;
+        }
+
+        .option-row input[type="text"] {
+            flex: 1;
+        }
+
+        select {
+            background-color: #052B2B;
+            color: #EBE5D5;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: #052B2B;
+            color: #EBE5D5;
         }
 
         @media (max-width: 768px) {
@@ -146,6 +179,19 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             .quiz-form {
                 padding: 20px;
             }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+        .question-block:hover {
+            border-color: #FECE63;
+            transition: border-color 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(235, 229, 213, 0.5);
         }
     </style>
 </head>
@@ -156,8 +202,7 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             <p>Design your quiz questions and set up the parameters below</p>
         </div>
 
-        <form class="quiz-form" action="save-quiz.php" method="POST">
-            <!-- Hidden input to send teacher_id to save-quiz.php -->
+        <form class="quiz-form" id="quizForm" action="/WEB_DEVS/functions/save_quiz.php" method="POST">
             <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
 
             <div class="form-group">
@@ -196,7 +241,6 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
                         <select name="questions[0][type]" onchange="updateQuestionType(this)">
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="true_false">True/False</option>
-                            <option value="short_answer">Short Answer</option>
                         </select>
                     </div>
 
@@ -235,7 +279,6 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
                     <select name="questions[${questionCount}][type]" onchange="updateQuestionType(this)">
                         <option value="multiple_choice">Multiple Choice</option>
                         <option value="true_false">True/False</option>
-                        <option value="short_answer">Short Answer</option>
                     </select>
                 </div>
                 <div class="options-container" id="options-${questionCount}"></div>
@@ -245,44 +288,100 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
                 </div>
             `;
             questionContainer.appendChild(newQuestionBlock);
+            
+            // Initialize the question type for the new question
+            const select = newQuestionBlock.querySelector('select');
+            updateQuestionType(select);
+            
             questionCount++;
         }
 
         function removeQuestion(button) {
             button.closest('.question-block').remove();
-            questionCount--;
+            updateQuestionNumbers();
+        }
+
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-block');
+            questions.forEach((question, index) => {
+                question.querySelector('h3').textContent = `Question ${index + 1}`;
+                
+                // Update name attributes
+                const inputs = question.querySelectorAll('input[name*="questions["], select[name*="questions["]');
+                inputs.forEach(input => {
+                    input.name = input.name.replace(/questions\[\d+\]/, `questions[${index}]`);
+                });
+                
+                // Update options container ID
+                const optionsContainer = question.querySelector('.options-container');
+                if (optionsContainer) {
+                    optionsContainer.id = `options-${index}`;
+                }
+            });
+            questionCount = questions.length;
         }
 
         function updateQuestionType(select) {
-            const questionIndex = select.name.match(/\d+/)[0];
+            const questionBlock = select.closest('.question-block');
+            const questionIndex = Array.from(document.querySelectorAll('.question-block')).indexOf(questionBlock);
             const optionsContainer = document.getElementById(`options-${questionIndex}`);
+            
             if (select.value === 'multiple_choice') {
                 optionsContainer.innerHTML = `
                     <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="A"> A. <input type="text" name="questions[${questionIndex}][options][A]" required>
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="A" required> A. 
+                        <input type="text" name="questions[${questionIndex}][options][A]" required>
                     </div>
                     <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="B"> B. <input type="text" name="questions[${questionIndex}][options][B]" required>
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="B" required> B. 
+                        <input type="text" name="questions[${questionIndex}][options][B]" required>
+                    </div>
+                    <div class="option-row">
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="C" required> C. 
+                        <input type="text" name="questions[${questionIndex}][options][C]" required>
+                    </div>
+                    <div class="option-row">
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="D" required> D. 
+                        <input type="text" name="questions[${questionIndex}][options][D]" required>
                     </div>
                 `;
             } else if (select.value === 'true_false') {
                 optionsContainer.innerHTML = `
                     <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="true"> True
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="true" required> True
                     </div>
                     <div class="option-row">
-                        <input type="radio" name="questions[${questionIndex}][correct]" value="false"> False
-                    </div>
-                `;
-            } else if (select.value === 'short_answer') {
-                optionsContainer.innerHTML = `
-                    <div class="form-group">
-                        <label>Correct Answer</label>
-                        <input type="text" name="questions[${questionIndex}][correct_answer]" required placeholder="Enter the correct answer">
+                        <input type="radio" name="questions[${questionIndex}][correct]" value="false" required> False
                     </div>
                 `;
             }
         }
+
+        // Initialize the first question's type
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstQuestionType = document.querySelector('select[name="questions[0][type]"]');
+            updateQuestionType(firstQuestionType);
+        });
+
+        // Form submission handling
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/WEB_DEVS/functions/save_quiz.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                window.location.href = '/WEB_DEVS/view/teacher/dashboard.php';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating quiz. Please try again.');
+            });
+        });
     </script>
 </body>
 </html>
