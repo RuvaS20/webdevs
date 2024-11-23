@@ -1,3 +1,4 @@
+// quiz_editor.js
 let currentQuestions = [];
 
 function openEditQuizModal(quizId) {
@@ -21,7 +22,15 @@ async function loadQuizData(quizId) {
         document.getElementById('editQuizDescription').value = data.description;
         document.getElementById('editQuizDifficulty').value = data.difficulty_level;
         
-        currentQuestions = data.questions;
+        // Initialize questions with default option texts
+        currentQuestions = data.questions.map(q => ({
+            ...q,
+            optionA: 'Option A',
+            optionB: 'Option B',
+            optionC: 'Option C',
+            optionD: 'Option D'
+        }));
+        
         renderQuestions();
     } catch (error) {
         console.error('Error loading quiz:', error);
@@ -76,44 +85,89 @@ function renderAnswerOptions(question, questionIndex) {
         `;
     }
     
-    // Multiple choice
-    return question.options.map((option, optionIndex) => `
+    // Multiple choice with editable options
+    return `
         <div class="option-block">
             <input type="radio" name="correct_${questionIndex}" 
-                   ${option === question.correct_answer ? 'checked' : ''}
-                   onchange="updateAnswer(${questionIndex}, '${option}')">
-            <input type="text" value="${option}" 
-                   onchange="updateOption(${questionIndex}, ${optionIndex}, this.value)">
-            <span onclick="removeOption(${questionIndex}, ${optionIndex})">&times;</span>
+                   ${question.correct_answer === 'A' ? 'checked' : ''}
+                   onchange="updateAnswer(${questionIndex}, 'A')">
+            <input type="text" value="${question.optionA}"
+                   onchange="updateOptionText(${questionIndex}, 'optionA', this.value)">
         </div>
-    `).join('') + `
-        <button type="button" onclick="addOption(${questionIndex})" class="btn btn-secondary">
-            Add Option
-        </button>
+        <div class="option-block">
+            <input type="radio" name="correct_${questionIndex}" 
+                   ${question.correct_answer === 'B' ? 'checked' : ''}
+                   onchange="updateAnswer(${questionIndex}, 'B')">
+            <input type="text" value="${question.optionB}"
+                   onchange="updateOptionText(${questionIndex}, 'optionB', this.value)">
+        </div>
+        <div class="option-block">
+            <input type="radio" name="correct_${questionIndex}" 
+                   ${question.correct_answer === 'C' ? 'checked' : ''}
+                   onchange="updateAnswer(${questionIndex}, 'C')">
+            <input type="text" value="${question.optionC}"
+                   onchange="updateOptionText(${questionIndex}, 'optionC', this.value)">
+        </div>
+        <div class="option-block">
+            <input type="radio" name="correct_${questionIndex}" 
+                   ${question.correct_answer === 'D' ? 'checked' : ''}
+                   onchange="updateAnswer(${questionIndex}, 'D')">
+            <input type="text" value="${question.optionD}"
+                   onchange="updateOptionText(${questionIndex}, 'optionD', this.value)">
+        </div>
     `;
+}
+
+function updateQuestion(index, field, value) {
+    currentQuestions[index][field] = value;
+}
+
+function updateQuestionType(index, newType) {
+    const question = currentQuestions[index];
+    question.question_type = newType;
+    question.correct_answer = newType === 'true_false' ? 'true' : 'A';
+    renderQuestions();
+}
+
+function updateAnswer(questionIndex, value) {
+    currentQuestions[questionIndex].correct_answer = value;
+}
+
+function updateOptionText(questionIndex, optionField, value) {
+    currentQuestions[questionIndex][optionField] = value;
 }
 
 function addQuestion() {
     currentQuestions.push({
         question_text: '',
         question_type: 'multiple_choice',
-        correct_answer: '',
-        options: ['', '', '', '']
+        correct_answer: 'A',
+        points: 1,
+        optionA: 'Option A',
+        optionB: 'Option B',
+        optionC: 'Option C',
+        optionD: 'Option D'
     });
     renderQuestions();
 }
 
-// Add other necessary functions (updateQuestion, removeQuestion, etc.)
+function removeQuestion(index) {
+    currentQuestions.splice(index, 1);
+    renderQuestions();
+}
 
 document.getElementById('editQuizForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Strip the option texts before sending to server since they're not stored in DB
+    const questionsForServer = currentQuestions.map(({ optionA, optionB, optionC, optionD, ...rest }) => rest);
     
     const formData = {
         quiz_id: document.getElementById('editQuizId').value,
         title: document.getElementById('editQuizTitle').value,
         description: document.getElementById('editQuizDescription').value,
         difficulty_level: document.getElementById('editQuizDifficulty').value,
-        questions: currentQuestions
+        questions: questionsForServer
     };
     
     try {
