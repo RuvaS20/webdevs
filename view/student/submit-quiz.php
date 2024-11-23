@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
         // Process each answer
         foreach ($_POST['answers'] as $question_id => $answer) {
             $stmt = $pdo->prepare("
-                SELECT question_text, question_type, correct_answer, points, options 
+                SELECT question_text, question_type, correct_answer, points
                 FROM quiz_questions 
                 WHERE question_id = :question_id
             ");
@@ -118,61 +118,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Arimo", sans-serif;
         }
 
         body {
-            background: #f4f6f8;
+            background-color: #052B2B;
+            color: #EBE5D5;
             padding: 20px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: #041f1f;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 0.5px solid rgba(235, 229, 213, 0.2);
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(235, 229, 213, 0.2);
+        }
+
+        .header h1 {
+            font-family: "DM Serif Display", serif;
+            color: #FECE63;
+            margin-bottom: 15px;
         }
 
         .score {
             font-size: 48px;
-            color: #2ecc71;
+            color: #FECE63;
             margin: 20px 0;
-            text-align: center;
+            font-family: "DM Serif Display", serif;
         }
 
         .question-review {
             padding: 15px;
             margin: 15px 0;
             border-radius: 8px;
+            background: #052B2B;
         }
 
         .correct {
-            background-color: #d4edda;
-            border-left: 4px solid #28a745;
+            border-left: 4px solid #2ecc71;
         }
 
         .incorrect {
-            background-color: #f8d7da;
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid #e74c3c;
         }
 
         .question-text {
             font-weight: bold;
             margin-bottom: 10px;
+            color: #FECE63;
         }
 
         .buttons {
@@ -183,25 +192,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            color: white;
+            color: #EBE5D5;
             font-weight: 500;
-        }
-
-        .btn-retake {
-            background-color: #3498db;
-        }
-
-        .btn-dashboard {
-            background-color: #95a5a6;
+            transition: all 0.3s;
+            background: #052B2B;
+            border: 1px solid #FECE63;
         }
 
         .btn:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -223,8 +243,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
         <?php endforeach; ?>
 
         <div class="buttons">
-            <a href="take-quiz.php?id=<?php echo htmlspecialchars($_POST['quiz_id']); ?>" class="btn btn-retake">Take Quiz Again</a>
-            <a href="dashboard.php" class="btn btn-dashboard">Back to Dashboard</a>
+            <a href="take-quiz.php?id=<?php echo htmlspecialchars($_POST['quiz_id']); ?>" class="btn">Take Quiz Again</a>
+            <a href="dashboard.php" class="btn">Back to Dashboard</a>
         </div>
     </div>
 </body>
