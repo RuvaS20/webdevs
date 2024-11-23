@@ -14,12 +14,11 @@ if (!$topicId) {
 // Increment view count
 incrementViewCount($topicId);
 
-// Get topic details
 function getTopicDetails($topicId) {
-    $db = new Database();
-    $conn = $db->getConnection();
-    
     try {
+        $db = Database::getInstance();
+        $conn = $db->getConnection();
+        
         $stmt = $conn->prepare("
             SELECT 
                 t.*,
@@ -30,21 +29,27 @@ function getTopicDetails($topicId) {
             WHERE t.topic_id = ?
         ");
         
-        $stmt->execute([$topicId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
+        // Bind parameter
+        $stmt->bind_param("i", $topicId);
+        
+        // Execute and get results
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Fetch the result
+        return $result->fetch_assoc();
+    } catch (Exception $e) {
         error_log("Error fetching topic: " . $e->getMessage());
         return null;
     }
 }
 
-// Get topic replies
 function getTopicReplies($topicId, $page = 1, $perPage = 10) {
-    $db = new Database();
-    $conn = $db->getConnection();
-    $offset = ($page - 1) * $perPage;
-    
     try {
+        $db = Database::getInstance();
+        $conn = $db->getConnection();
+        $offset = ($page - 1) * $perPage;
+        
         $stmt = $conn->prepare("
             SELECT 
                 r.*,
@@ -57,9 +62,16 @@ function getTopicReplies($topicId, $page = 1, $perPage = 10) {
             LIMIT ? OFFSET ?
         ");
         
-        $stmt->execute([$topicId, $perPage, $offset]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
+        // Bind parameters
+        $stmt->bind_param("iii", $topicId, $perPage, $offset);
+        
+        // Execute and get results
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Fetch all results
+        return $result->fetch_all(MYSQLI_ASSOC);
+    } catch (Exception $e) {
         error_log("Error fetching replies: " . $e->getMessage());
         return [];
     }
@@ -74,6 +86,23 @@ if (!$topic) {
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $replies = getTopicReplies($topicId, $page);
 ?>
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Community Forum - Msasa Academy</title>
+        
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap" rel="stylesheet">
+        <link href="../../assets/css/forum.css" rel="stylesheet">
+</head>
+
+<nav class="nav-container">
+    <div class="nav-links">
+        <a href="index.php" class="active">Forum</a>
+        <a href="../student/dashboard.php">Profile</a>
+        <a href="../../auth/logout.php">Logout</a>
+    </div>
+</nav>
 
 <main class="main-container">
     <div class="topic-header">

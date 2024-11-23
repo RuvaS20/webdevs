@@ -1,9 +1,9 @@
 <?php
 session_start();
-require_once '../includes/config.php';
+require_once '../../db/database.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
-    header('Location: ../auth/login.php');
+    header('Location: ../../auth/login.php');
     exit();
 }
 
@@ -213,7 +213,8 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
     <div class="dashboard">
         <div class="header">
             <h1>Student Dashboard</h1>
-            <a href="../auth/logout.php" class="logout-btn">Logout</a>
+            <a href="../forum/index.php">Forum</a>
+            <a href="../../auth/logout.php" class="logout-btn">Logout</a>
         </div>
 
         <?php if (isset($_SESSION['success'])): ?>
@@ -270,7 +271,7 @@ $average_score = $completed_attempts > 0 ? $total_score / $completed_attempts : 
                             <p><?php echo htmlspecialchars($quiz['description']); ?></p>
                             <p><strong>Difficulty:</strong> <?php echo htmlspecialchars($quiz['difficulty_level']); ?></p>
                             <p><strong>Created by:</strong> <?php echo htmlspecialchars($quiz['teacher_name']); ?></p>
-                            <a href="take-quiz.php?id=<?php echo $quiz['quiz_id']; ?>" class="start-quiz-btn">Start Quiz</a>
+                            <a href="take_quiz.php?id=<?php echo $quiz['quiz_id']; ?>" class="start-quiz-btn">Start Quiz</a>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>

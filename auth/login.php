@@ -66,15 +66,6 @@ require_once '../db/database.php';
                 <button type="submit" class="login-btn">Log In</button>
             </form>
 
-            <p class="or">or</p>
-            
-            <div class="social-login">
-                <button class="google">Continue with Google</button>
-                <button class="linkedin">LinkedIn</button>
-                <button class="github">GitHub</button>
-                <button class="facebook">Facebook</button>
-            </div>
-
             <p>Don't have an account? <a href="choose_role.php">Sign up</a></p>
         </div>
     </div>

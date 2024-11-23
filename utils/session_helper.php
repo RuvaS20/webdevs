@@ -55,7 +55,7 @@ class SessionManager {
   /**
      * Gets current usernmae
      */
-    public function getUserRole() {
+    public function getUserName() {
         return $_SESSION['username'] ?? null;
     }
     

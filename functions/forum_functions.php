@@ -1,29 +1,59 @@
 <?php
 // functions/forum_functions.php
-function incrementViewCount($topicId) {
-    $db = new Database();
-    $conn = $db->getConnection();
-    
+function getUserPostCount($userId) {
     try {
+        $db = Database::getInstance();
+        $conn = $db->getConnection();
+        
+        // Count both topics and replies by the user
+        $stmt = $conn->prepare("
+            SELECT 
+                (SELECT COUNT(*) FROM forum_topics WHERE user_id = ?) +
+                (SELECT COUNT(*) FROM forum_replies WHERE user_id = ?) as total_posts
+        ");
+        
+        $stmt->bind_param("ii", $userId, $userId);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        return $row['total_posts'] ?? 0;
+    } catch (Exception $e) {
+        error_log("Error getting user post count: " . $e->getMessage());
+        return 0;
+    }
+}
+
+function incrementViewCount($topicId) {
+    try {
+        $db = Database::getInstance();
+        $conn = $db->getConnection();
+        
         $stmt = $conn->prepare("
             UPDATE forum_topics 
             SET view_count = view_count + 1 
             WHERE topic_id = ?
         ");
-        return $stmt->execute([$topicId]);
-    } catch (PDOException $e) {
+        
+        // Bind the parameter for mysqli
+        $stmt->bind_param("i", $topicId); // "i" for integer
+        
+        // Execute without parameters for mysqli
+        return $stmt->execute();
+    } catch (Exception $e) {
         error_log("Error incrementing view count: " . $e->getMessage());
         return false;
     }
 }
 
 function getTopicsByCategory($category, $page = 1, $perPage = 20) {
-    $db = new Database();
-    $conn = $db->getConnection();
-    
-    $offset = ($page - 1) * $perPage;
-    
     try {
+        $db = Database::getInstance();
+        $conn = $db->getConnection();
+        
+        $offset = ($page - 1) * $perPage;
+        
         $stmt = $conn->prepare("
             SELECT t.*, u.username 
             FROM forum_topics t
@@ -33,9 +63,16 @@ function getTopicsByCategory($category, $page = 1, $perPage = 20) {
             LIMIT ? OFFSET ?
         ");
         
-        $stmt->execute([$category, $perPage, $offset]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
+        // Bind parameters for mysqli
+        $stmt->bind_param("sii", $category, $perPage, $offset); // s for string, i for integer
+        
+        // Execute and get results
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Fetch all results
+        return $result->fetch_all(MYSQLI_ASSOC);
+    } catch (Exception $e) {
         error_log("Error getting topics: " . $e->getMessage());
         return [];
     }
