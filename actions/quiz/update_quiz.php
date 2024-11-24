@@ -1,63 +1,102 @@
+//update quiz
 <?php
+session_start();
 require_once '../../db/database.php';
-require_once '../../utils/session_helper.php';
 
-if (!isTeacher()) {
-    http_response_code(403);
-    exit('Unauthorized');
-}
+header('Content-Type: application/json');
 
-$data = json_decode(file_get_contents('php://input'), true);
-if (!$data) {
-    http_response_code(400);
-    exit('Invalid data');
+// Check if user is logged in as teacher
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Unauthorized access'
+    ]);
+    exit;
 }
 
 try {
-    $pdo->beginTransaction();
+    // Get JSON data
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        throw new Exception('Invalid data format');
+    }
+
+    // Validate required fields
+    if (empty($data['quiz_id']) || empty($data['title'])) {
+        throw new Exception('Missing required fields');
+    }
+
+    $db = Database::getInstance();
+    $conn = $db->getConnection();
+    
+    // Start transaction
+    $conn->begin_transaction();
     
     // Update quiz details
-    $stmt = $pdo->prepare("
+    $stmt = $conn->prepare("
         UPDATE quizzes 
-        SET title = ?, description = ?, difficulty_level = ?
+        SET title = ?, 
+            description = ?, 
+            difficulty_level = ?
         WHERE quiz_id = ? AND teacher_id = ?
     ");
-    $stmt->execute([
+    
+    $stmt->bind_param("sssii", 
         $data['title'],
         $data['description'],
         $data['difficulty_level'],
         $data['quiz_id'],
         $_SESSION['user_id']
-    ]);
+    );
+    
+    $stmt->execute();
     
     // Delete existing questions
-    $stmt = $pdo->prepare("DELETE FROM quiz_questions WHERE quiz_id = ?");
-    $stmt->execute([$data['quiz_id']]);
+    $stmt = $conn->prepare("DELETE FROM quiz_questions WHERE quiz_id = ?");
+    $stmt->bind_param("i", $data['quiz_id']);
+    $stmt->execute();
     
     // Insert updated questions
-    $stmt = $pdo->prepare("
-        INSERT INTO quiz_questions 
-        (quiz_id, question_text, question_type, correct_answer, points, order_number)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-    
-    foreach ($data['questions'] as $index => $question) {
-        $stmt->execute([
-            $data['quiz_id'],
-            $question['question_text'],
-            $question['question_type'],
-            $question['correct_answer'],
-            $question['points'] ?? 1,
-            $index + 1
-        ]);
+    if (!empty($data['questions'])) {
+        $stmt = $conn->prepare("
+            INSERT INTO quiz_questions 
+            (quiz_id, question_text, question_type, correct_answer, points, order_number)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        
+        foreach ($data['questions'] as $index => $question) {
+            $points = isset($question['points']) ? $question['points'] : 1;
+            $stmt->bind_param("isssii",
+                $data['quiz_id'],
+                $question['question_text'],
+                $question['question_type'],
+                $question['correct_answer'],
+                $points,
+                $index + 1
+            );
+            $stmt->execute();
+        }
     }
     
-    $pdo->commit();
-    echo json_encode(['success' => true]);
+    // Commit transaction
+    $conn->commit();
     
-} catch(PDOException $e) {
-    $pdo->rollBack();
-    http_response_code(500);
-    exit('Database error: ' . $e->getMessage());
+    echo json_encode([
+        'success' => true,
+        'message' => 'Quiz updated successfully'
+    ]);
+    
+} catch (Exception $e) {
+    // Rollback transaction if there was an error
+    if (isset($conn)) {
+        $conn->rollback();
+    }
+    
+    error_log("Error updating quiz: " . $e->getMessage());
+    
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error updating quiz: ' . $e->getMessage()
+    ]);
 }
 ?>

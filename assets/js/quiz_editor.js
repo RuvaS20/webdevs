@@ -1,193 +1,259 @@
-// quiz_editor.js
+// ../../assets/js/quiz_editor.js
+//submission wasn't working
 let currentQuestions = [];
 
 function openEditQuizModal(quizId) {
     const modal = document.getElementById('editQuizModal');
-    modal.style.display = 'block';
-    loadQuizData(quizId);
-}
+    const editQuizForm = document.getElementById('editQuizForm');
+    document.getElementById('editQuizId').value = quizId;
 
-function closeModal() {
-    const modal = document.getElementById('editQuizModal');
-    modal.style.display = 'none';
-}
+    // Fetch quiz data
+    fetch(`../../actions/quiz/get_quiz.php?id=${quizId}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log('Full response:', data); // Add this line to see the complete response
+        if (data.success) {
+            // Populate form with quiz data
+            document.getElementById('editQuizTitle').value = data.quiz.title;
+            document.getElementById('editQuizDescription').value = data.quiz.description;
+            document.getElementById('editQuizDifficulty').value = data.quiz.difficulty_level;
+            
+            // Load questions
+            const questionsContainer = document.getElementById('questionsContainer');
+            questionsContainer.innerHTML = ''; // Clear existing questions
+            
+            data.questions.forEach((question, index) => {
+                addQuestionToForm(question, index);
+            });
 
-async function loadQuizData(quizId) {
-    try {
-        const response = await fetch(`../../actions/quiz/get_quiz.php?id=${quizId}`);
-        const data = await response.json();
-        
-        document.getElementById('editQuizId').value = data.quiz_id;
-        document.getElementById('editQuizTitle').value = data.title;
-        document.getElementById('editQuizDescription').value = data.description;
-        document.getElementById('editQuizDifficulty').value = data.difficulty_level;
-        
-        // Initialize questions with default option texts
-        currentQuestions = data.questions.map(q => ({
-            ...q,
-            optionA: 'Option A',
-            optionB: 'Option B',
-            optionC: 'Option C',
-            optionD: 'Option D'
-        }));
-        
-        renderQuestions();
-    } catch (error) {
-        console.error('Error loading quiz:', error);
-        alert('Error loading quiz data');
-    }
-}
-
-function renderQuestions() {
-    const container = document.getElementById('questionsContainer');
-    container.innerHTML = '';
-    
-    currentQuestions.forEach((question, index) => {
-        const questionBlock = document.createElement('div');
-        questionBlock.className = 'question-block';
-        questionBlock.innerHTML = `
-            <div class="form-group">
-                <span class="remove-question" onclick="removeQuestion(${index})">&times;</span>
-                <label>Question ${index + 1}</label>
-                <input type="text" value="${question.question_text}" 
-                       onchange="updateQuestion(${index}, 'question_text', this.value)" required>
-                
-                <label>Question Type</label>
-                <select onchange="updateQuestionType(${index}, this.value)">
-                    <option value="multiple_choice" ${question.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
-                    <option value="true_false" ${question.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
-                </select>
-                
-                <div class="answer-options">
-                    ${renderAnswerOptions(question, index)}
-                </div>
-            </div>
-        `;
-        container.appendChild(questionBlock);
+            // Show modal
+            modal.style.display = 'block';
+        } else {
+            alert('Error loading quiz data: ' + (data.message || 'Unknown error')); // Modified to show the error message
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error loading quiz data: ' + error.message);
     });
+
+    // Close button functionality
+    const closeBtn = document.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Click outside modal to close
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
 }
 
-function renderAnswerOptions(question, questionIndex) {
-    if (question.question_type === 'true_false') {
-        return `
-            <div class="option-block">
-                <input type="radio" name="correct_${questionIndex}" 
-                       ${question.correct_answer === 'true' ? 'checked' : ''}
-                       onchange="updateAnswer(${questionIndex}, 'true')">
-                <label>True</label>
-            </div>
-            <div class="option-block">
-                <input type="radio" name="correct_${questionIndex}" 
-                       ${question.correct_answer === 'false' ? 'checked' : ''}
-                       onchange="updateAnswer(${questionIndex}, 'false')">
-                <label>False</label>
-            </div>
-        `;
+function addQuestionToForm(question = null, index = null) {
+    if (index === null) {
+        index = document.querySelectorAll('.question-block').length;
     }
-    
-    // Multiple choice with editable options
-    return `
-        <div class="option-block">
-            <input type="radio" name="correct_${questionIndex}" 
-                   ${question.correct_answer === 'A' ? 'checked' : ''}
-                   onchange="updateAnswer(${questionIndex}, 'A')">
-            <input type="text" value="${question.optionA}"
-                   onchange="updateOptionText(${questionIndex}, 'optionA', this.value)">
+
+    const questionBlock = document.createElement('div');
+    questionBlock.className = 'question-block';
+    questionBlock.innerHTML = `
+        <div class="question-header">
+            <h3>Question ${index + 1}</h3>
+            <button type="button" class="btn btn-danger" onclick="removeQuestion(this)">Remove</button>
         </div>
-        <div class="option-block">
-            <input type="radio" name="correct_${questionIndex}" 
-                   ${question.correct_answer === 'B' ? 'checked' : ''}
-                   onchange="updateAnswer(${questionIndex}, 'B')">
-            <input type="text" value="${question.optionB}"
-                   onchange="updateOptionText(${questionIndex}, 'optionB', this.value)">
+        ${question ? `<input type="hidden" name="questions[${index}][question_id]" value="${question.question_id}">` : ''}
+        <div class="form-group">
+            <label>Question Text</label>
+            <input type="text" name="questions[${index}][text]" value="${question ? question.question_text : ''}" required>
         </div>
-        <div class="option-block">
-            <input type="radio" name="correct_${questionIndex}" 
-                   ${question.correct_answer === 'C' ? 'checked' : ''}
-                   onchange="updateAnswer(${questionIndex}, 'C')">
-            <input type="text" value="${question.optionC}"
-                   onchange="updateOptionText(${questionIndex}, 'optionC', this.value)">
+        <div class="form-group">
+            <label>Question Type</label>
+            <select name="questions[${index}][type]" onchange="updateQuestionType(this)">
+                <option value="multiple_choice" ${question && question.question_type === 'multiple_choice' ? 'selected' : ''}>Multiple Choice</option>
+                <option value="true_false" ${question && question.question_type === 'true_false' ? 'selected' : ''}>True/False</option>
+                <option value="short_answer" ${question && question.question_type === 'short_answer' ? 'selected' : ''}>Short Answer</option>
+            </select>
         </div>
-        <div class="option-block">
-            <input type="radio" name="correct_${questionIndex}" 
-                   ${question.correct_answer === 'D' ? 'checked' : ''}
-                   onchange="updateAnswer(${questionIndex}, 'D')">
-            <input type="text" value="${question.optionD}"
-                   onchange="updateOptionText(${questionIndex}, 'optionD', this.value)">
+        <div class="options-container" id="options-${index}"></div>
+        <div class="form-group">
+            <label>Points</label>
+            <input type="number" name="questions[${index}][points]" value="${question ? question.points : '1'}" min="1" required>
         </div>
     `;
+
+    document.getElementById('questionsContainer').appendChild(questionBlock);
+
+    // Initialize question type options
+    const typeSelect = questionBlock.querySelector('select[name*="type"]');
+    updateQuestionType(typeSelect, question);
 }
 
-function updateQuestion(index, field, value) {
-    currentQuestions[index][field] = value;
+function updateQuestionType(select, existingQuestion = null) {
+    const questionBlock = select.closest('.question-block');
+    const questionIndex = Array.from(document.querySelectorAll('.question-block')).indexOf(questionBlock);
+    const optionsContainer = questionBlock.querySelector('.options-container');
+    
+    switch(select.value) {
+        case 'multiple_choice':
+            optionsContainer.innerHTML = `
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="A" ${existingQuestion && existingQuestion.correct_answer === 'A' ? 'checked' : ''} required> A. 
+                    <input type="text" name="questions[${questionIndex}][options][A]" required>
+                </div>
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="B" ${existingQuestion && existingQuestion.correct_answer === 'B' ? 'checked' : ''} required> B. 
+                    <input type="text" name="questions[${questionIndex}][options][B]" required>
+                </div>
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="C" ${existingQuestion && existingQuestion.correct_answer === 'C' ? 'checked' : ''} required> C. 
+                    <input type="text" name="questions[${questionIndex}][options][C]" required>
+                </div>
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="D" ${existingQuestion && existingQuestion.correct_answer === 'D' ? 'checked' : ''} required> D. 
+                    <input type="text" name="questions[${questionIndex}][options][D]" required>
+                </div>
+            `;
+            break;
+            
+        case 'true_false':
+            optionsContainer.innerHTML = `
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="true" ${existingQuestion && existingQuestion.correct_answer === 'true' ? 'checked' : ''} required> True
+                </div>
+                <div class="option-row">
+                    <input type="radio" name="questions[${questionIndex}][correct]" value="false" ${existingQuestion && existingQuestion.correct_answer === 'false' ? 'checked' : ''} required> False
+                </div>
+            `;
+            break;
+            
+        case 'short_answer':
+            optionsContainer.innerHTML = `
+                <div class="form-group">
+                    <label>Correct Answer</label>
+                    <input type="text" name="questions[${questionIndex}][correct_answer]" value="${existingQuestion ? existingQuestion.correct_answer : ''}" required>
+                </div>
+            `;
+            break;
+    }
 }
 
-function updateQuestionType(index, newType) {
-    const question = currentQuestions[index];
-    question.question_type = newType;
-    question.correct_answer = newType === 'true_false' ? 'true' : 'A';
-    renderQuestions();
+function removeQuestion(button) {
+    button.closest('.question-block').remove();
+    updateQuestionNumbers();
 }
 
-function updateAnswer(questionIndex, value) {
-    currentQuestions[questionIndex].correct_answer = value;
-}
-
-function updateOptionText(questionIndex, optionField, value) {
-    currentQuestions[questionIndex][optionField] = value;
-}
-
-function addQuestion() {
-    currentQuestions.push({
-        question_text: '',
-        question_type: 'multiple_choice',
-        correct_answer: 'A',
-        points: 1,
-        optionA: 'Option A',
-        optionB: 'Option B',
-        optionC: 'Option C',
-        optionD: 'Option D'
+function updateQuestionNumbers() {
+    document.querySelectorAll('.question-block').forEach((block, index) => {
+        // Update question number in header
+        block.querySelector('h3').textContent = `Question ${index + 1}`;
+        
+        // Update all input names to reflect new index
+        block.querySelectorAll('[name*="questions["]').forEach(input => {
+            input.name = input.name.replace(/questions\[\d+\]/, `questions[${index}]`);
+        });
+        
+        // Update options container ID
+        const optionsContainer = block.querySelector('.options-container');
+        if (optionsContainer) {
+            optionsContainer.id = `options-${index}`;
+        }
     });
-    renderQuestions();
 }
 
-function removeQuestion(index) {
-    currentQuestions.splice(index, 1);
-    renderQuestions();
-}
+// Add this at the top with your other event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission
+    const editQuizForm = document.getElementById('editQuizForm');
+    if (editQuizForm) {
+        editQuizForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted'); // Debug log
+            
+            // Log the current form data
+            console.log('Quiz ID:', document.getElementById('editQuizId').value);
+            console.log('Title:', document.getElementById('editQuizTitle').value);
+            console.log('Description:', document.getElementById('editQuizDescription').value);
+            console.log('Difficulty:', document.getElementById('editQuizDifficulty').value);
+            console.log('Questions:', currentQuestions);
+            
+            const formData = {
+                quiz_id: document.getElementById('editQuizId').value,
+                title: document.getElementById('editQuizTitle').value,
+                description: document.getElementById('editQuizDescription').value,
+                difficulty_level: document.getElementById('editQuizDifficulty').value,
+                questions: currentQuestions
+            };
+            
+            console.log('Sending data:', formData); // Debug log
+            
+            fetch('../../actions/quiz/update_quiz.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status); // Debug log
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data); // Debug log
+                if (data.success) {
+                    alert('Quiz updated successfully!');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error updating quiz');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating quiz: ' + error.message);
+            });
+        });
+    } else {
+        console.error('Edit quiz form not found!'); // Debug log
+    }
+});
 
-document.getElementById('editQuizForm').addEventListener('submit', async (e) => {
+// Add new question button handler
+document.getElementById('addQuestionBtn').addEventListener('click', function() {
+    addQuestionToForm();
+});
+
+// Form submission
+document.getElementById('editQuizForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // Strip the option texts before sending to server since they're not stored in DB
-    const questionsForServer = currentQuestions.map(({ optionA, optionB, optionC, optionD, ...rest }) => rest);
-    
+    // Create the data object
     const formData = {
         quiz_id: document.getElementById('editQuizId').value,
         title: document.getElementById('editQuizTitle').value,
         description: document.getElementById('editQuizDescription').value,
         difficulty_level: document.getElementById('editQuizDifficulty').value,
-        questions: questionsForServer
+        questions: currentQuestions // Make sure this variable is accessible
     };
     
-    try {
-        const response = await fetch('../../actions/quiz/update_quiz.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        if (response.ok) {
-            alert('Quiz updated successfully');
-            closeModal();
+    fetch('../../actions/quiz/update_quiz.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Quiz updated successfully!');
             window.location.reload();
         } else {
-            throw new Error('Failed to update quiz');
+            alert(data.message || 'Error updating quiz');
         }
-    } catch (error) {
-        console.error('Error updating quiz:', error);
-        alert('Error updating quiz');
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating quiz: ' + error.message);
+    });
 });
