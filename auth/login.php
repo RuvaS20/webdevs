@@ -244,7 +244,6 @@ require_once '../db/database.php';
                     <input type="checkbox" id="remember-me" name="remember">
                     <label for="remember-me">Remember me</label>
                 </div>
-                <a href="forgot_password.php" class="forgot-password">Forgot password?</a>
             </div>
             
             <button type="submit" class="login-btn">Log In</button>

@@ -202,7 +202,7 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             <p>Design your quiz questions and set up the parameters below</p>
         </div>
 
-        <form class="quiz-form" id="quizForm" action="/WEB_DEVS/functions/save_quiz.php" method="POST">
+        <form class="quiz-form" id="quizForm" action="../../functions/save_quiz.php" method="POST">
             <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
 
             <div class="form-group">
@@ -369,13 +369,13 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             
             const formData = new FormData(this);
             
-            fetch('/WEB_DEVS/functions/save_quiz.php', {
+            fetch('../../functions/save_quiz.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.text())
             .then(data => {
-                window.location.href = '/WEB_DEVS/view/teacher/dashboard.php';
+                window.location.href = 'dashboard.php';
             })
             .catch(error => {
                 console.error('Error:', error);
