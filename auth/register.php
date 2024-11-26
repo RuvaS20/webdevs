@@ -6,7 +6,6 @@ if(!isset($_GET['role']) || ($_GET['role'] !== 'teacher' && $_GET['role'] !== 's
     header('Location: choose_role.php');
     exit();
 }
-
 $role = $_GET['role'];
 ?>
 <!DOCTYPE html>
@@ -17,7 +16,6 @@ $role = $_GET['role'];
     <title>Register as <?php echo ucfirst($role); ?> - Msasa Academy</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -45,8 +43,6 @@ $role = $_GET['role'];
             overflow: hidden;
             position: relative;
         }
-
-        /* Mesh gradient background */
         .container::before {
             content: '';
             position: absolute;
@@ -60,7 +56,6 @@ $role = $_GET['role'];
             z-index: 0;
         }
 
-        /* Left Section */
         .left-section {
             flex: 1;
             padding: 3rem;
@@ -102,7 +97,6 @@ $role = $_GET['role'];
             opacity: 0.9;
         }
 
-        /* Right Section */
         .right-section {
             flex: 1.5;
             padding: 3rem;
@@ -123,7 +117,6 @@ $role = $_GET['role'];
             margin-bottom: 2rem;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -199,7 +192,6 @@ $role = $_GET['role'];
             font-size: 0.9rem;
         }
 
-        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
