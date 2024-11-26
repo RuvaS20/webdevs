@@ -1,5 +1,4 @@
 <?php
-// view/errors/maintenance.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +8,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Maintenance - Msasa Academy</title>
         <style>
-        /* Same base CSS as other error pages */
         body {
             margin: 0;
             padding: 0;
