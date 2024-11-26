@@ -10,7 +10,7 @@ require_once '../db/database.php';
     <title>Login - Msasa Academy</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Reset and Base Styles */
+        
         * {
             margin: 0;
             padding: 0;
@@ -39,7 +39,6 @@ require_once '../db/database.php';
             overflow: hidden;
         }
 
-        /* Mesh gradient background */
         .container::before {
             content: '';
             position: absolute;
@@ -76,7 +75,6 @@ require_once '../db/database.php';
             margin-bottom: 2rem;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -167,7 +165,6 @@ require_once '../db/database.php';
             opacity: 0.8;
         }
 
-        /* Message Styles */
         .error-message {
             background: rgba(231, 76, 60, 0.1);
             border: 1px solid rgba(231, 76, 60, 0.3);
@@ -190,7 +187,6 @@ require_once '../db/database.php';
             text-align: center;
         }
 
-        /* Mobile Styles */
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
