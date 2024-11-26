@@ -11,10 +11,8 @@ session_start();
         <title>Climate Change Dashboard | Msasa Academy</title>
 
         <style>
-        /*DM Serif Display and Arimo*/
         @import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=DM+Serif+Display:ital@0;1&display=swap');
 
-        /* Reset Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -35,7 +33,6 @@ session_start();
             padding: 2rem;
         }
 
-        /* Navigation */
         .nav-bar {
             display: flex;
             justify-content: space-between;
@@ -67,7 +64,6 @@ session_start();
             color: #FECE63;
         }
 
-        /* Header */
         header {
             text-align: center;
             padding: 2rem 0;
@@ -86,7 +82,6 @@ session_start();
             opacity: 0.9;
         }
 
-        /* Dashboard Grid */
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -100,7 +95,6 @@ session_start();
             }
         }
 
-        /* Cards */
         .card {
             background: rgba(235, 229, 213, 0.05);
             border-radius: 15px;
@@ -124,7 +118,6 @@ session_start();
             font-size: 1.8rem;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 1rem;
@@ -152,7 +145,6 @@ session_start();
             color: #052B2B;
         }
 
-        /* Data Sections */
         .data-section {
             display: none;
         }
@@ -161,7 +153,6 @@ session_start();
             display: block;
         }
 
-        /* Charts */
         .chart-container {
             height: auto;
             overflow-y: visible;
@@ -173,7 +164,6 @@ session_start();
             border-radius: 10px;
             overflow: hidden;
             height: 400px;
-            /* Fixed height for iframes */
         }
 
         .iframe-container:last-child {
@@ -187,7 +177,6 @@ session_start();
             background: transparent;
         }
 
-        /* News Section */
         .news-section {
             max-height: 600px;
             overflow-y: auto;
@@ -243,7 +232,6 @@ session_start();
             margin-bottom: 0.5rem;
         }
 
-        /* Footer */
         footer {
             text-align: center;
             padding: 2rem;
@@ -252,14 +240,12 @@ session_start();
             margin-top: 2rem;
         }
 
-        /* Loading State */
         .loading {
             text-align: center;
             padding: 2rem;
             color: rgba(235, 229, 213, 0.6);
         }
 
-        /* Error Message */
         .error-message {
             color: #ff6b6b;
             padding: 1.5rem;
@@ -268,7 +254,6 @@ session_start();
             border-radius: 10px;
         }
 
-        /* Scrollbar for cards */
         .card::-webkit-scrollbar {
             width: 8px;
         }
@@ -301,13 +286,12 @@ session_start();
             </a>
             <div class="right-nav">
                 <a href="forum/index.php">Forum</a>
-                <a href="news.php">News</a>
                 <?php if ($_SESSION['role'] === 'student'): ?>
                 <a href="student/available_quizzes.php">Quizzes</a>
                 <?php elseif ($_SESSION['role'] === 'teacher'): ?>
                 <a href="teacher/dashboard.php">Quizzes</a>
                 <?php endif; ?>
-                <a href="../../auth/logout.php" class="logout-btn">Logout</a>
+                <a href="../auth/logout.php" class="logout-btn">Logout</a>
             </div>
         </nav>
 
@@ -318,7 +302,6 @@ session_start();
             </header>
 
             <div class="dashboard">
-                <!-- Climate Data Card -->
                 <div class="card">
                     <div class="card-header">
                         <h2>Key Climate Indicators</h2>
@@ -342,7 +325,6 @@ session_start();
                             </div>
                         </div>
 
-                        <!-- Greenhouse Gases Section -->
                         <div id="greenhouse-section" class="data-section">
                             <div class="iframe-container">
                                 <iframe
@@ -356,7 +338,6 @@ session_start();
                             </div>
                         </div>
 
-                        <!-- Climate Change Tracker Section -->
                         <div id="tracker-section" class="data-section">
                             <div class="iframe-container">
                                 <iframe src="https://cdn.climatechangetracker.org/embedding/warmingstripes"
@@ -366,7 +347,6 @@ session_start();
                     </div>
                 </div>
 
-                <!-- News Card -->
                 <div class="card">
                     <div class="card-header">
                         <h2>Latest Environmental News</h2>
@@ -384,25 +364,20 @@ session_start();
         </div>
 
         <script>
-        // Tab switching functionality
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                // Remove active class from all tabs and data sections
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.data-section').forEach(section =>
                     section.classList.remove('active')
                 );
 
-                // Add active class to clicked tab
                 tab.classList.add('active');
 
-                // Show corresponding section
                 const sectionId = `${tab.dataset.tab}-section`;
                 document.getElementById(sectionId).classList.add('active');
             });
         });
 
-        // Guardian API Configuration
         const GUARDIAN_API_KEY = '8d9fd1f9-c9d9-4228-87e0-8a92d0cdd5a2';
         const GUARDIAN_API_URL = 'https://content.guardianapis.com/search';
 
@@ -467,16 +442,12 @@ session_start();
             }
         }
 
-        // Initial news fetch
         fetchGuardianNews();
 
-        // Update news every 5 minutes
         setInterval(fetchGuardianNews, 300000);
 
-        // Update last updated timestamp
         document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
         </script>
-        <script src="assets/js/auth.js"></script>
+        <script src="../assets/js/auth.js"></script>
     </body>
-
 </html>
