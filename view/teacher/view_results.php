@@ -13,7 +13,6 @@ if (!$quiz_id) {
     exit();
 }
 
-// Get quiz details
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE quiz_id = :quiz_id AND teacher_id = :teacher_id");
 $stmt->execute([
     ':quiz_id' => $quiz_id,
@@ -26,19 +25,17 @@ if (!$quiz) {
     exit();
 }
 
-// Get all attempts for this quiz
 $stmt = $pdo->prepare("SELECT 
     qa.*,
     u.username,
     u.email
     FROM quiz_attempts qa
-    JOIN users u ON qa.student_id = u.user_id
+    JOIN msasa_users u ON qa.student_id = u.user_id
     WHERE qa.quiz_id = :quiz_id
     ORDER BY qa.start_time DESC");
 $stmt->execute([':quiz_id' => $quiz_id]);
 $attempts = $stmt->fetchAll();
 
-// Calculate summary statistics
 $total_attempts = count($attempts);
 $total_score = 0;
 $highest_score = 0;
@@ -324,7 +321,7 @@ $lowest_score = $total_attempts > 0 ? $lowest_score : 0;
                                     <?php echo $attempt['completion_status'] ? 'Completed' : 'In Progress'; ?>
                                 </td>
                                 <td>
-                                    <a href="view-attempt.php?id=<?php echo $attempt['attempt_id']; ?>" class="btn btn-view">View Details</a>
+                                    <a href="view_attempt.php?id=<?php echo $attempt['attempt_id']; ?>" class="btn btn-view">View Details</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
