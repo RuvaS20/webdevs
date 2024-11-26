@@ -13,22 +13,19 @@ function hashPassword($password) {
 
 function registerUser($pdo, $type, $username, $email, $password) {
     try {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT email FROM users WHERE email = :email");
+        $stmt = $pdo->prepare("SELECT email FROM msasa_users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         if ($stmt->rowCount() > 0) {
             return ['success' => false, 'message' => 'Email already registered'];
         }
-        
-        // Check if username already exists
-        $stmt = $pdo->prepare("SELECT username FROM users WHERE username = :username");
+        $stmt = $pdo->prepare("SELECT username FROM msasa_users WHERE username = :username");
         $stmt->execute([':username' => $username]);
         if ($stmt->rowCount() > 0) {
             return ['success' => false, 'message' => 'Username already taken'];
         }
         
         $hashedPassword = hashPassword($password);
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role, registration_date, last_login_date, is_active) 
+        $stmt = $pdo->prepare("INSERT INTO msasa_users (username, email, password, role, registration_date, last_login_date, is_active) 
                               VALUES (:username, :email, :password, :role, NOW(), NOW(), 1)");
         
         $stmt->execute([
