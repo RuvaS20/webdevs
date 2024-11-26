@@ -2,13 +2,12 @@
 session_start();
 require_once '../../db/database.php';
 
-// Check if the user is logged in as a teacher
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-$teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
+$teacher_id = $_SESSION['user_id']; 
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -376,6 +375,68 @@ $teacher_id = $_SESSION['user_id']; // Get the teacher's ID from the session
             .then(response => response.text())
             .then(data => {
                 window.location.href = 'dashboard.php';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating quiz. Please try again.');
+            });
+        });
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const questions = [];
+            
+            // Gather all question blocks
+            document.querySelectorAll('.question-block').forEach((block, index) => {
+                const questionType = block.querySelector('select[name*="[type]"]').value;
+                const questionData = {
+                    text: block.querySelector('input[name*="[text]"]').value,
+                    type: questionType,
+                    points: block.querySelector('input[name*="[points]"]').value,
+                };
+
+                // Handle different question types
+                if (questionType === 'multiple_choice') {
+                    const options = {};
+                    block.querySelectorAll('.option-row').forEach(row => {
+                        const letter = row.querySelector('input[type="radio"]').value;
+                        const optionText = row.querySelector('input[type="text"]').value;
+                        options[letter] = optionText;
+                    });
+                    questionData.options = options;
+                    questionData.correct_answer = block.querySelector('input[type="radio"]:checked')?.value || '';
+                } else if (questionType === 'true_false') {
+                    questionData.options = ['true', 'false'];
+                    questionData.correct_answer = block.querySelector('input[type="radio"]:checked')?.value || 'false';
+                }
+
+                questions.push(questionData);
+            });
+
+            const quizData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                difficulty_level: formData.get('difficulty_level'),
+                teacher_id: formData.get('teacher_id'),
+                questions: questions
+            };
+            
+            fetch('../../functions/save_quiz.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(quizData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'dashboard.php';
+                } else {
+                    alert(data.message || 'Error creating quiz');
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
