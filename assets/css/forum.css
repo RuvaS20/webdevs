@@ -1,11 +1,9 @@
-/* Forum Styles - Matching exact PHP classes */
 body {
     font-family: "Arimo", sans-serif;
     color: #EBE5D5;
     background-color: #052B2B;
 }
 
-/* Nav Container */
 .nav-container {
     display: flex;
     justify-content: space-between;
@@ -36,14 +34,12 @@ body {
     color: #FECE63;
 }
 
-/* Main Container */
 .main-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 4rem;
 }
 
-/* Page Header */
 .page-header {
     text-align: center;
     margin-bottom: 3rem;
@@ -64,7 +60,6 @@ body {
     opacity: 0.9;
 }
 
-/* Forum Controls */
 .forum-controls {
     margin-bottom: 3rem;
     text-align: right;
@@ -86,7 +81,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Forum Categories */
 .forum-categories {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -132,7 +126,6 @@ body {
     gap: 0.5rem;
 }
 
-/* Topic List */
 .topic-list {
     background: rgba(235, 229, 213, 0.05);
     border-radius: 20px;
@@ -197,7 +190,6 @@ body {
     gap: 0.5rem;
 }
 
-/* No Topics Message */
 .no-topics {
     padding: 4rem 2rem;
     text-align: center;
@@ -206,7 +198,6 @@ body {
     font-size: 1.1rem;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -229,7 +220,15 @@ body {
     transform: translateY(-2px);
 }
 
-/* Mobile Responsiveness */
+.logout-btn {
+    color: #EBE5D5;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid #FECE63;
+    transition: all 0.3s;
+}
+
 @media (max-width: 768px) {
     .nav-container {
         padding: 1rem;
