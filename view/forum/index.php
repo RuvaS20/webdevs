@@ -1,10 +1,10 @@
 <?php
-// view/forum/index.php
+session_start();
 require_once '../../db/database.php';
 require_once '../../functions/forum_functions.php';
 require_once '../../utils/session_helper.php';
 
-// Get category filter if set
+
 $currentCategory = isset($_GET['category']) ? $_GET['category'] : null;
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $perPage = 20;
@@ -15,8 +15,7 @@ class ForumManager {
     public function __construct() {
         $this->db = Database::getInstance();
     }
-    
-    // Get topics based on category
+
     public function getLatestTopics($category = null, $limit = 10) {
         try {
             $conn = $this->db->getConnection();
@@ -32,7 +31,7 @@ class ForumManager {
                         u.username,
                         t.category
                     FROM forum_topics t
-                    JOIN users u ON t.user_id = u.user_id
+                    JOIN msasa_users u ON t.user_id = u.user_id
                     WHERE t.category = ?
                     ORDER BY t.last_updated_date DESC 
                     LIMIT ?
@@ -51,7 +50,7 @@ class ForumManager {
                         u.username,
                         t.category
                     FROM forum_topics t
-                    JOIN users u ON t.user_id = u.user_id
+                    JOIN msasa_users u ON t.user_id = u.user_id
                     ORDER BY t.last_updated_date DESC 
                     LIMIT ?
                 ";
@@ -72,7 +71,6 @@ class ForumManager {
         }
     }
 
-    // Get category statistics
     public function getCategoryStats() {
         try {
             $conn = $this->db->getConnection();
@@ -97,14 +95,11 @@ class ForumManager {
     }
 }
 
-// Initialize the forum manager
 $forumManager = new ForumManager();
 
-// Get the data using the manager
 $topics = $forumManager->getLatestTopics($currentCategory);
 $categoryStats = $forumManager->getCategoryStats();
 
-// Helper function for time ago display
 function timeAgo($timestamp) {
     $datetime = new DateTime($timestamp);
     $now = new DateTime();
@@ -126,22 +121,26 @@ function timeAgo($timestamp) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Community Forum - Msasa Academy</title>
 
-        <!-- Google Fonts -->
         <link
             href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap"
             rel="stylesheet">
         <link href="../../assets/css/forum.css" rel="stylesheet">
     </head>
 
-
     <body>
         <nav class="nav-container">
             <div class="nav-links">
                 <a href="../news.php">News</a>
                 <a href="index.php" class="active">Forum</a>
-                <a href="../student/available_quizzes.php">Quizzes</a>
-                <a href="../student/dashboard.php">Profile</a>
-                <a href="../../auth/logout.php">Logout</a>
+                <?php if($_SESSION['role'] == 'teacher'): ?>
+                    <a href="../teacher/dashboard.php">Profle</a>
+                <?php else: ?>
+                    <a href="../student/dashboard.php">Profile</a>  
+                <?php endif; ?>
+                <?php if($_SESSION['role'] == 'student'): ?>
+                    <a href="../student/available_quizzes.php">Quizzes</a> 
+                <?php endif; ?>
+                <a class="logout-btn" href="../../auth/logout.php">Logout</a>
             </div>
         </nav>
 
