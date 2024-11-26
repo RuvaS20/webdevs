@@ -1,7 +1,4 @@
 <?php
-// db/database.php
-
-
 require_once __DIR__ . '/config.php';
 
 try {
@@ -54,7 +51,6 @@ class Database {
     }
 }
 
-// Create a global connection variable for easier access
 try {
     $conn = Database::getInstance()->getConnection();
 } catch (Exception $e) {
