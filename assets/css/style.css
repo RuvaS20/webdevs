@@ -1,107 +1,101 @@
 * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            margin: 0;
-        }
+body {
+    min-height: 100vh;
+    display: flex;
+    margin: 0;
+}
 
-        .split {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-        }
+.split {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
 
-        .split.right {
-            background-color: #f3f3f3;
-        }
+.split.right {
+    background-color: #f3f3f3;
+}
 
-        .content {
-            max-width: 400px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+.content {
+    max-width: 400px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
-        .business-tag {
-            background-color: #3c8f3c;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
+.business-tag {
+    background-color: #3c8f3c;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
 
-        h2 {
-            font-size: 32px;
-            margin-bottom: 20px;
-            color: #333;
-        }
+h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #333;
+}
 
-        h2 span {
-            color: #3c8f3c;
-        }
+h2 span {
+    color: #3c8f3c;
+}
 
-        p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
+p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
 
-        .login-button {
-            padding: 12px 40px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            border: none;
-            margin-bottom: 20px;
-            min-width: 200px;
-	    text-decoration: none;
-background-color: #3c8f3c;
-            color: white;
-        }
-
-        
+.login-button {
+    padding: 12px 40px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    margin-bottom: 20px;
+    min-width: 200px;
+	text-decoration: none;
+    background-color: #3c8f3c;
+    color: white;
+}    
 	
 .login-button:hover {
     background-color: #2d682d; 
     text-decoration: none; 
 }
 
-        
+.no-account {
+    color: #666;
+    margin-bottom: 10px;
+}
 
-        .no-account {
-            color: #666;
-            margin-bottom: 10px;
-        }
+.action-links span {
+    color: #666;
+}
 
-       
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
 
-        .action-links span {
-            color: #666;
-        }
+    .split {
+        padding: 40px 20px;
+    }
 
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            .split {
-                padding: 40px 20px;
-            }
-
-            .content {
-                padding: 0;
-            }
-        }
+    .content {
+        padding: 0;
+    }
+}
