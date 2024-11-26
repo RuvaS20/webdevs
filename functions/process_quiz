@@ -37,12 +37,11 @@ try {
 
         switch ($question['question_type']) {
             case 'multiple_choice':
+                $is_correct = strcasecmp($user_answer, $question['correct_answer']) === 0;
+                $options = json_decode($question['options'], true);
+                break;
             case 'true_false':
                 $is_correct = strcasecmp($user_answer, $question['correct_answer']) === 0;
-                break;
-                
-            case 'short_answer':
-                $is_correct = strcasecmp(trim($user_answer), trim($question['correct_answer'])) === 0;
                 break;
         }
 
