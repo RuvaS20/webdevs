@@ -1,5 +1,4 @@
 <?php
-// view/errors/500.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
