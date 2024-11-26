@@ -1,16 +1,14 @@
-/* Forum Topic Styles */
 .container {
     max-width: 800px;
     margin: 6rem auto 3rem;
     padding: 2rem;
-    background: rgba(235, 229, 213, 0.03);
+    background: rgba(235, 229, 213, 0.05);
     border-radius: 20px;
     border: 0.5px solid rgba(235, 229, 213, 0.2);
     position: relative;
     overflow: hidden;
 }
 
-/* Mesh gradient background */
 .container::before {
     content: '';
     position: absolute;
@@ -106,7 +104,6 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 12px rgba(254, 206, 99, 0.2);
 }
 
-/* Floating elements for visual interest */
 .container::after {
     content: '';
     position: absolute;
@@ -120,7 +117,6 @@ button[type="submit"]:hover {
     z-index: -1;
 }
 
-/* Error states */
 .form-group.error input,
 .form-group.error textarea,
 .form-group.error select {
@@ -133,38 +129,6 @@ button[type="submit"]:hover {
     margin-top: 0.5rem;
 }
 
-/* Nav Container */
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2rem 4rem;
-    border-bottom: 0.5px solid rgba(235, 229, 213, 0.4);
-}
-
-.nav-container .logo {
-    font-family: "DM Serif Display", serif;
-    color: #FECE63;
-    font-size: 1.5rem;
-}
-
-.nav-links {
-    display: flex;
-    gap: 2rem;
-}
-
-.nav-links a {
-    color: #EBE5D5;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    transition: color 0.3s ease;
-}
-
-.nav-links a.active {
-    color: #FECE63;
-}
-
-/* Mobile Responsiveness */
 @media (max-width: 768px) {
     .container {
         margin: 4rem 1rem 2rem;
