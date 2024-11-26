@@ -1,6 +1,6 @@
 <?php
 session_start();
-// view/forum/topic.php
+
 require_once '../../db/database.php';
 require_once '../../functions/forum_functions.php';
 require_once '../../utils/session_helper.php';
@@ -11,7 +11,6 @@ if (!$topicId) {
     exit();
 }
 
-// Increment view count
 incrementViewCount($topicId);
 
 function getTopicDetails($topicId) {
@@ -25,18 +24,15 @@ function getTopicDetails($topicId) {
                 u.username,
                 u.role
             FROM forum_topics t
-            JOIN users u ON t.user_id = u.user_id
+            JOIN msasa_users u ON t.user_id = u.user_id
             WHERE t.topic_id = ?
         ");
         
-        // Bind parameter
         $stmt->bind_param("i", $topicId);
-        
-        // Execute and get results
+
         $stmt->execute();
         $result = $stmt->get_result();
-        
-        // Fetch the result
+
         return $result->fetch_assoc();
     } catch (Exception $e) {
         error_log("Error fetching topic: " . $e->getMessage());
@@ -56,20 +52,17 @@ function getTopicReplies($topicId, $page = 1, $perPage = 10) {
                 u.username,
                 u.role
             FROM forum_replies r
-            JOIN users u ON r.user_id = u.user_id
+            JOIN msasa_users u ON r.user_id = u.user_id
             WHERE r.topic_id = ?
             ORDER BY r.created_date ASC
             LIMIT ? OFFSET ?
         ");
-        
-        // Bind parameters
+
         $stmt->bind_param("iii", $topicId, $perPage, $offset);
-        
-        // Execute and get results
+
         $stmt->execute();
         $result = $stmt->get_result();
-        
-        // Fetch all results
+
         return $result->fetch_all(MYSQLI_ASSOC);
     } catch (Exception $e) {
         error_log("Error fetching replies: " . $e->getMessage());
@@ -88,8 +81,7 @@ $replies = getTopicReplies($topicId, $page);
 ?>
 
 <?php
-// view/forum/topic.php
-// [Your existing PHP code remains the same until the HTML starts] 
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,13 +91,11 @@ $replies = getTopicReplies($topicId, $page);
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Topic: <?php echo htmlspecialchars($topic['title']); ?> - Msasa Academy</title>
 
-        <!-- Google Fonts -->
         <link
             href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;600&display=swap"
             rel="stylesheet">
 
         <style>
-        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -119,14 +109,12 @@ $replies = getTopicReplies($topicId, $page);
             line-height: 1.6;
         }
 
-        /* Main Container */
         .main-container {
             max-width: 1000px;
             margin: 2rem auto;
             padding: 2rem 4rem;
         }
 
-        /* Topic Header */
         .topic-header {
             background: rgba(235, 229, 213, 0.05);
             padding: 2rem;
@@ -163,7 +151,6 @@ $replies = getTopicReplies($topicId, $page);
             border: 1px solid rgba(254, 206, 99, 0.3);
         }
 
-        /* Posts */
         .post-container {
             display: flex;
             margin-bottom: 1.5rem;
@@ -202,7 +189,6 @@ $replies = getTopicReplies($topicId, $page);
             word-break: break-word;
         }
 
-        /* Reply Form */
         .reply-form {
             background: rgba(235, 229, 213, 0.03);
             padding: 2rem;
@@ -237,7 +223,6 @@ $replies = getTopicReplies($topicId, $page);
             box-shadow: 0 0 0 2px rgba(254, 206, 99, 0.2);
         }
 
-        /* Buttons */
         .button {
             display: inline-block;
             padding: 0.8rem 1.5rem;
@@ -269,7 +254,6 @@ $replies = getTopicReplies($topicId, $page);
             border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
-        /* Post Meta and Actions */
         .post-meta {
             margin-top: 1rem;
             padding-top: 1rem;
@@ -287,7 +271,6 @@ $replies = getTopicReplies($topicId, $page);
             gap: 0.8rem;
         }
 
-        /* Login Prompt */
         .login-prompt {
             text-align: center;
             padding: 3rem;
@@ -306,7 +289,6 @@ $replies = getTopicReplies($topicId, $page);
             text-decoration: underline;
         }
 
-        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
@@ -363,7 +345,6 @@ $replies = getTopicReplies($topicId, $page);
             transition: all 0.3s;
         }
 
-        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .main-container {
                 padding: 1rem;
@@ -405,7 +386,11 @@ $replies = getTopicReplies($topicId, $page);
         <nav class="nav-container">
             <div class="nav-links">
                 <a href="index.php" class="active">Forum</a>
-                <a href="../student/dashboard.php">Profile</a>
+                <?php if($_SESSION['role'] == 'teacher'): ?>
+                    <a href="../teacher/dashboard.php">Profle</a>
+                <?php else: ?>
+                    <a href="../student/dashboard.php">Profile</a>  
+                <?php endif; ?>
                 <a href="../../auth/logout.php" class="logout-btn">Logout</a>
             </div>
         </nav>
@@ -496,8 +481,6 @@ $replies = getTopicReplies($topicId, $page);
             </div>
             <?php endif; ?>
         </main>
-
-        <?php require_once '../components/footer.php'; ?>
 
         <?php require_once '../components/footer.php'; ?>
     </body>
