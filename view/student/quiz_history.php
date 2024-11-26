@@ -2,13 +2,11 @@
 session_start();
 require_once '../../db/database.php';
 
-// Check if the user is logged in and is a student
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Fetch the student's quiz history
 $stmt = $pdo->prepare("
     SELECT 
         qa.attempt_id,
