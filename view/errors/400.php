@@ -1,5 +1,4 @@
 <?php
-// view/errors/400.php
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +8,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Bad Request - Msasa Academy</title>
         <style>
-        /* Same CSS as 500.php */
         body {
             margin: 0;
             padding: 0;
