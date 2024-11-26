@@ -1,4 +1,3 @@
-//teacher dashboard
 <?php
 session_start();
 require_once '../../db/database.php';
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
     exit();
 }
 
-// Get teacher's quizzes with error checking
 try {
     $stmt = $pdo->prepare("
         SELECT 
@@ -41,7 +39,7 @@ try {
         u.username as student_name
         FROM quiz_attempts qa
         JOIN quizzes q ON qa.quiz_id = q.quiz_id
-        JOIN users u ON qa.student_id = u.user_id
+        JOIN msasa_users u ON qa.student_id = u.user_id
         WHERE q.teacher_id = :teacher_id
         ORDER BY qa.start_time DESC
         LIMIT 5");
@@ -57,16 +55,12 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Teacher Dashboard</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;700&display=swap"
-            rel="stylesheet">
-        <style>
-        /* Base styles */
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Arimo:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -80,14 +74,12 @@ try {
             line-height: 1.6;
         }
 
-        /* Dashboard Container */
         .dashboard {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Header Section */
         .header {
             display: flex;
             justify-content: space-between;
@@ -101,6 +93,13 @@ try {
             font-family: "DM Serif Display", serif;
             color: #EBE5D5;
             font-size: 2.5em;
+        }
+
+        .header a{
+            color: #EBE5D5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         .create-quiz-btn {
@@ -119,7 +118,6 @@ try {
             box-shadow: 0 4px 8px rgba(254, 206, 99, 0.3);
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -149,7 +147,6 @@ try {
             margin-bottom: 5px;
         }
 
-        /* Main Content */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -160,7 +157,7 @@ try {
             background: #041f1f;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             margin-bottom: 20px;
             border: 1px solid rgba(235, 229, 213, 0.2);
         }
@@ -172,7 +169,6 @@ try {
             font-size: 1.5em;
         }
 
-        /* Quiz Items */
         .quiz-item {
             border: 1px solid rgba(235, 229, 213, 0.2);
             border-radius: 10px;
@@ -185,7 +181,7 @@ try {
         .quiz-item:hover {
             transform: translateY(-2px);
             border-color: #FECE63;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .quiz-item h3 {
@@ -194,7 +190,6 @@ try {
             font-family: "DM Serif Display", serif;
         }
 
-        /* Quiz Stats and Actions */
         .quiz-stats {
             display: flex;
             gap: 20px;
@@ -209,7 +204,6 @@ try {
             margin-top: 10px;
         }
 
-        /* Buttons */
         .btn {
             padding: 0.5rem 1rem;
             border: none;
@@ -237,10 +231,9 @@ try {
 
         .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Recent Attempts */
         .attempt-item {
             padding: 10px 0;
             border-bottom: 1px solid rgba(235, 229, 213, 0.2);
@@ -250,10 +243,8 @@ try {
             border-bottom: none;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
-            /* Start hidden by default */
             position: fixed;
             z-index: 1000;
             left: 0;
@@ -287,7 +278,6 @@ try {
             color: #FECE63;
         }
 
-        /* Form Styles */
         .form-group label {
             color: #EBE5D5;
         }
@@ -307,7 +297,6 @@ try {
             outline: none;
         }
 
-        /* Messages */
         .success-message {
             background-color: rgba(76, 175, 80, 0.1);
             border: 1px solid #4CAF50;
@@ -334,9 +323,6 @@ try {
             transition: opacity 0.5s ease;
         }
 
-        /* Add/update these styles in your dashboard.php */
-
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -361,7 +347,6 @@ try {
             border-radius: 10px;
         }
 
-        /* Question Block Styles */
         .question-block {
             background: #052B2B;
             border: 1px solid rgba(235, 229, 213, 0.2);
@@ -406,7 +391,6 @@ try {
             cursor: pointer;
         }
 
-        /* Form Styles Update */
         .form-group {
             margin-bottom: 20px;
         }
@@ -435,7 +419,6 @@ try {
             outline: none;
         }
 
-        /* Button styles for the modal */
         .btn-danger {
             background-color: #f44336;
             color: #EBE5D5;
@@ -459,12 +442,20 @@ try {
             color: #3A4E3C;
         }
 
-        /* Responsive Design */
+        .logout-btn {
+            color: #EBE5D5;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid #FECE63;
+            transition: all 0.3s;
+        }
+
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-
+            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -478,51 +469,54 @@ try {
                 flex-wrap: wrap;
             }
         }
-        </style>
-    </head>
-
-    <body>
-        <div class="dashboard">
-            <?php if(isset($_SESSION['success'])): ?>
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <?php if(isset($_SESSION['success'])): ?>
             <div class="success-message">
                 <?php 
                     echo $_SESSION['success']; 
                     unset($_SESSION['success']);
                 ?>
             </div>
-            <?php endif; ?>
+        <?php endif; ?>
 
-            <?php if(isset($_SESSION['error'])): ?>
+        <?php if(isset($_SESSION['error'])): ?>
             <div class="error-message">
                 <?php 
                     echo $_SESSION['error']; 
                     unset($_SESSION['error']);
                 ?>
             </div>
-            <?php endif; ?>
-
-            <div class="header">
-                <h1>Teacher Dashboard</h1>
-                <a href="create_quiz.php" class="create-quiz-btn">Create New Quiz</a>
+        <?php endif; ?>
+        
+        <div class="header">
+            <h1>Teacher Dashboard</h1>
+            <a href="../news.php">News</a>
+            <a href="../forum/index.php">Forum</a>
+            <a href="../../auth/logout.php" class="logout-btn">Logout</a>
+        </div>
+        <div>
+            <a href="create_quiz.php" class="create-quiz-btn">Create New Quiz</a><br><br>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><?php echo count($quizzes); ?></h3>
+                <p>Total Quizzes</p>
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3><?php echo count($quizzes); ?></h3>
-                    <p>Total Quizzes</p>
-                </div>
-                <div class="stat-card">
-                    <h3><?php 
+            <div class="stat-card">
+                <h3><?php 
                     $total_attempts = 0;
                     foreach($quizzes as $quiz) {
                         $total_attempts += $quiz['attempt_count'];
                     }
                     echo $total_attempts;
                 ?></h3>
-                    <p>Total Attempts</p>
-                </div>
-                <div class="stat-card">
-                    <h3><?php 
+                <p>Total Attempts</p>
+            </div>
+            <div class="stat-card">
+                <h3><?php 
                     $avg_score = 0;
                     $count = 0;
                     foreach($quizzes as $quiz) {
@@ -533,111 +527,104 @@ try {
                     }
                     echo $count ? round($avg_score/$count, 1) : 0;
                 ?>%</h3>
-                    <p>Average Score</p>
-                </div>
+                <p>Average Score</p>
             </div>
+        </div>
 
-            <div class="dashboard-grid">
-                <div class="main-content">
-                    <div class="card">
-                        <h2>Your Quizzes</h2>
-                        <?php if(empty($quizzes)): ?>
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="card">
+                    <h2>Your Quizzes</h2>
+                    <?php if(empty($quizzes)): ?>
                         <p>You haven't created any quizzes yet.</p>
-                        <?php else: ?>
+                    <?php else: ?>
                         <ul class="quiz-list">
                             <?php foreach($quizzes as $quiz): ?>
-                            <li class="quiz-item" data-quiz-id="<?php echo $quiz['quiz_id']; ?>">
-                                <h3><?php echo htmlspecialchars($quiz['title']); ?></h3>
-                                <p><?php echo htmlspecialchars($quiz['description']); ?></p>
-                                <div class="quiz-stats">
-                                    <span>Difficulty: <?php echo htmlspecialchars($quiz['difficulty_level']); ?></span>
-                                    <span>Attempts: <?php echo $quiz['attempt_count']; ?></span>
-                                    <span>Average Score:
-                                        <?php echo $quiz['average_score'] ? round($quiz['average_score'], 1) : 0; ?>%</span>
-                                </div>
-                                <div class="quiz-actions">
-                                    <a href="view_results.php?id=<?php echo $quiz['quiz_id']; ?>"
-                                        class="btn btn-view">View Results</a>
-                                    <a href="#" onclick="openEditQuizModal(<?php echo $quiz['quiz_id']; ?>)"
-                                        class="btn btn-edit">Edit Quiz</a>
-                                    <button onclick="deleteQuiz(<?php echo $quiz['quiz_id']; ?>, event)"
-                                        class="btn btn-delete">Delete</button>
-                                </div>
-                            </li>
+                                <li class="quiz-item" data-quiz-id="<?php echo $quiz['quiz_id']; ?>">
+                                    <h3><?php echo htmlspecialchars($quiz['title']); ?></h3>
+                                    <p><?php echo htmlspecialchars($quiz['description']); ?></p>
+                                    <div class="quiz-stats">
+                                        <span>Difficulty: <?php echo htmlspecialchars($quiz['difficulty_level']); ?></span>
+                                        <span>Attempts: <?php echo $quiz['attempt_count']; ?></span>
+                                        <span>Average Score: <?php echo $quiz['average_score'] ? round($quiz['average_score'], 1) : 0; ?>%</span>
+                                    </div>
+                                    <div class="quiz-actions">
+                                        <a href="view_results.php?id=<?php echo $quiz['quiz_id']; ?>" class="btn btn-view">View Results</a>
+                                        <a href="#" onclick="openEditQuizModal(<?php echo $quiz['quiz_id']; ?>)" class="btn btn-edit">Edit Quiz</a>
+                                        <button onclick="deleteQuiz(<?php echo $quiz['quiz_id']; ?>, event)" class="btn btn-delete">Delete</button>
+                                    </div>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="sidebar">
-                    <div class="card">
-                        <h2>Recent Attempts</h2>
-                        <?php if(empty($recent_attempts)): ?>
-                        <p>No quiz attempts yet.</p>
-                        <?php else: ?>
-                        <ul class="attempt-list">
-                            <?php foreach($recent_attempts as $attempt): ?>
-                            <li class="attempt-item">
-                                <p><strong><?php echo htmlspecialchars($attempt['student_name']); ?></strong></p>
-                                <p>Quiz: <?php echo htmlspecialchars($attempt['quiz_title']); ?></p>
-                                <p>Score: <?php echo round($attempt['total_score'], 1); ?>%</p>
-                                <p>Date: <?php echo date('M d, Y', strtotime($attempt['start_time'])); ?></p>
-                            </li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php endif; ?>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
-            <!-- Edit Quiz Modal -->
-            <!-- Edit Quiz Modal -->
-            <div id="editQuizModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Edit Quiz</h2>
-                        <span class="close">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editQuizForm">
-                            <input type="hidden" id="editQuizId" name="quiz_id">
-
-                            <div class="form-group">
-                                <label for="editQuizTitle">Quiz Title</label>
-                                <input type="text" id="editQuizTitle" name="title" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="editQuizDescription">Description</label>
-                                <textarea id="editQuizDescription" name="description" rows="3"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="editQuizDifficulty">Difficulty Level</label>
-                                <select id="editQuizDifficulty" name="difficulty_level">
-                                    <option value="easy">Easy</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="hard">Hard</option>
-                                </select>
-                            </div>
-
-                            <div id="questionsContainer">
-                                <!-- Questions will be loaded here dynamically -->
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" id="addQuestionBtn" class="btn">Add New Question</button>
-                                <button type="submit" class="btn">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
+            <div class="sidebar">
+                <div class="card">
+                    <h2>Recent Attempts</h2>
+                    <?php if(empty($recent_attempts)): ?>
+                        <p>No quiz attempts yet.</p>
+                    <?php else: ?>
+                        <ul class="attempt-list">
+                            <?php foreach($recent_attempts as $attempt): ?>
+                                <li class="attempt-item">
+                                    <p><strong><?php echo htmlspecialchars($attempt['student_name']); ?></strong></p>
+                                    <p>Quiz: <?php echo htmlspecialchars($attempt['quiz_title']); ?></p>
+                                    <p>Score: <?php echo round($attempt['total_score'], 1); ?>%</p>
+                                    <p>Date: <?php echo date('M d, Y', strtotime($attempt['start_time'])); ?></p>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
 
-        <script>
-        // Auto-hide success and error messages after 3 seconds
+        <div id="editQuizModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Quiz</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="editQuizForm">
+                        <input type="hidden" id="editQuizId" name="quiz_id">
+                        
+                        <div class="form-group">
+                            <label for="editQuizTitle">Quiz Title</label>
+                            <input type="text" id="editQuizTitle" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editQuizDescription">Description</label>
+                            <textarea id="editQuizDescription" name="description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editQuizDifficulty">Difficulty Level</label>
+                            <select id="editQuizDifficulty" name="difficulty_level">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+
+                        <div id="questionsContainer">
+                            <!-- Questions will be loaded here dynamically -->
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="addQuestionBtn" class="btn">Add New Question</button>
+                            <button type="submit" class="btn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const messages = document.querySelectorAll('.success-message, .error-message');
             messages.forEach(message => {
@@ -649,10 +636,9 @@ try {
                 }, 3000);
             });
         });
-        </script>
+    </script>
 
-        <script src="../../assets/js/quiz_delete.js"></script>
-        <script src="../../assets/js/quiz_editor.js"></script>
-    </body>
-
+    <script src="../../assets/js/quiz_delete.js"></script>
+    <script src="../../assets/js/quiz_editor.js"></script>
+</body>
 </html>
