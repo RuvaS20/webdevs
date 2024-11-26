@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../includes/config.php';
+require_once '../../db/config.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_GET['attempt_id'])) {
     header('Location: quizzes.php');
@@ -8,7 +8,6 @@ if (!isset($_SESSION['user_id']) || !isset($_GET['attempt_id'])) {
 }
 
 try {
-    // Get attempt details with quiz info
     $stmt = $pdo->prepare("
         SELECT qa.*, q.title, q.description
         FROM quiz_attempts qa 
@@ -23,7 +22,6 @@ try {
     
     $attempt = $stmt->fetch();
 
-    // Get question responses with correct answers
     $stmt = $pdo->prepare("
         SELECT qr.*, qq.question_text, qq.question_type, qq.correct_answer, qq.options
         FROM quiz_responses qr
@@ -49,7 +47,6 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Results</title>
     <style>
-        /* Add your CSS styles here */
         .correct { color: green; }
         .incorrect { color: red; }
         .response-card {
