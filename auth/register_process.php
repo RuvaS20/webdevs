@@ -11,8 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
     
     $errors = [];
-    
-    // Validate input
     if (empty($username) || strlen($username) < 3) {
         $errors[] = "Username must be at least 3 characters long";
     }
@@ -50,10 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: register.php?role=" . urlencode($role));
         exit();
     }
-} else {
+} 
+else 
+{
     header("Location: choose_role.php");
     exit();
 }
+
 if (empty($errors)) {
     $result = registerUser($pdo, $role, $username, $email, $password);
     
