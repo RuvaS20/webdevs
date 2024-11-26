@@ -2,13 +2,11 @@
 session_start();
 require_once '../../db/config.php';
 
-// Check if user is logged in and is a student
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header('Location: ../../auth/login.php');
     exit();
 }
 
-// Get quiz details
 $quiz_id = $_GET['id'] ?? 0;
 
 $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE quiz_id = ?");
@@ -21,7 +19,6 @@ if (!$quiz) {
     exit();
 }
 
-// Get questions
 $stmt = $pdo->prepare("SELECT * FROM quiz_questions WHERE quiz_id = ? ORDER BY order_number");
 $stmt->execute([$quiz_id]);
 $questions = $stmt->fetchAll();
@@ -202,27 +199,23 @@ if (empty($questions)) {
 
                     <?php
                     switch($question['question_type']) {
-                        case 'multiple_choice': ?>
+                        case 'multiple_choice':
+                            $options = json_decode($question['options'], true);
+                            if ($options) {
+                                foreach($options as $key => $option):
+                    ?>
                             <label class="option-label">
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
-                                       value="A" required> A
+                                       value="<?php echo $key; ?>" required>
+                                <?php echo htmlspecialchars($option); ?>
                             </label>
-                            <label class="option-label">
-                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
-                                       value="B" required> B
-                            </label>
-                            <label class="option-label">
-                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
-                                       value="C" required> C
-                            </label>
-                            <label class="option-label">
-                                <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
-                                       value="D" required> D
-                            </label>
-                            <?php
+                    <?php 
+                                endforeach;
+                            }
                             break;
 
-                        case 'true_false': ?>
+                        case 'true_false':
+                    ?>
                             <label class="option-label">
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
                                        value="true" required> True
@@ -231,13 +224,14 @@ if (empty($questions)) {
                                 <input type="radio" name="answers[<?php echo $question['question_id']; ?>]" 
                                        value="false" required> False
                             </label>
-                            <?php
+                    <?php
                             break;
 
-                        case 'short_answer': ?>
+                        case 'short_answer':
+                    ?>
                             <input type="text" name="answers[<?php echo $question['question_id']; ?>]" 
                                    placeholder="Enter your answer" required>
-                            <?php
+                    <?php
                             break;
                     }
                     ?>
@@ -247,7 +241,7 @@ if (empty($questions)) {
             <div class="quiz-footer">
                 <p><small>Make sure to answer all questions before submitting.</small></p>
                 <button type="submit" class="submit-btn">Submit Quiz</button>
-                <p><a href="dashboard.php">Cancel and return to dashboard</a></p>
+                <a href="dashboard.php">Cancel and return to dashboard</a>
             </div>
         </form>
     </div>
